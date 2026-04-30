@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OCR PDF — Quickpdf</title>
+<meta name="description" content="Extract text from scanned PDFs using browser-based OCR. Free and private." />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ff5733'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='sans-serif' font-weight='700' font-size='18' fill='white' font-style='italic'%3EQ%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://unpkg.com/tesseract.js@5.0.4/dist/tesseract.min.js"></script>
+<script>
+  if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+</script>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo"><span class="logo-mark">Q</span>Quickpdf</a>
+    <div class="nav-links">
+      <a href="index.html#tools">All tools</a>
+      <a href="index.html#how">How it works</a>
+      <a href="index.html" class="btn btn-primary">← Back to home</a>
+    </div>
+  </div>
+</nav>
+
+<main class="tool-page">
+  <div class="tool-breadcrumb">
+    <a href="index.html">Home</a>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+    <span>OCR PDF</span>
+  </div>
+
+  <div class="tool-header fade-up">
+    <div class="tool-header-icon tc-yellow">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8h10M7 12h10M7 16h6"/></svg>
+    </div>
+    <h1>OCR <em>a PDF.</em></h1>
+    <p>Extract text from scanned or image-based PDFs. The OCR engine runs entirely in your browser — your files never leave your device.</p>
+  </div>
+
+  <div id="dropzone" class="dropzone fade-up delay-1">
+    <div class="dropzone-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M12 18v-6M9 15l3-3 3 3"/></svg>
+    </div>
+    <h3>Drop a PDF or image</h3>
+    <p>or click to browse — pick a scanned PDF, JPG, or PNG</p>
+    <button class="btn-select" type="button">Select file</button>
+    <input type="file" id="fileInput" accept="application/pdf,image/jpeg,image/png" style="display:none;" />
+  </div>
+
+  <div class="file-list" id="fileList"></div>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand"><a href="index.html" class="logo"><span class="logo-mark">Q</span>Quickpdf</a><p>The free, fast, private way to work with PDFs.</p></div>
+    <div class="footer-col"><h5>Tools</h5><a href="merge.html">Merge PDF</a><a href="split.html">Split PDF</a><a href="compress.html">Compress PDF</a><a href="organize.html">Organize PDF</a><a href="watermark.html">Watermark PDF</a><a href="sign.html">Sign PDF</a><a href="unlock.html">Unlock PDF</a><a href="ocr.html">OCR PDF</a></div>
+    <div class="footer-col"><h5>Company</h5><a href="#">About</a><a href="#">Blog</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+    <div class="footer-col"><h5>Connect</h5><a href="#">Twitter</a><a href="#">GitHub</a><a href="#">Contact</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Quickpdf. Made with care.</span><span>Your files. Your device. Always.</span></div>
+</footer>
+
+<script src="assets/common.js"></script>
+<script>
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+const fileList = document.getElementById('fileList');
+let currentFile = null;
+
+const FILELIST_TEMPLATE = `
+  <div class="file-list-head"><h4>File to OCR</h4><span id="fileSize"></span></div>
+  <div id="fileItems"></div>
+  <div class="tool-options">
+    <div class="option-row" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+      <label style="font-weight: 600;">📦 First-run note</label>
+      <p style="font-size: 13px; color: var(--ink-soft); line-height: 1.5;">
+        The first time you use OCR, your browser will download the language model (~12 MB). After that, it's cached and works instantly.
+      </p>
+    </div>
+    <div class="option-row">
+      <label>Language</label>
+      <select id="ocrLang" style="flex: 0 0 200px;">
+        <option value="eng" selected>English</option>
+        <option value="spa">Spanish</option>
+        <option value="fra">French</option>
+        <option value="deu">German</option>
+        <option value="ita">Italian</option>
+        <option value="por">Portuguese</option>
+        <option value="hin">Hindi</option>
+        <option value="ara">Arabic</option>
+        <option value="chi_sim">Chinese (Simplified)</option>
+        <option value="jpn">Japanese</option>
+        <option value="kor">Korean</option>
+        <option value="rus">Russian</option>
+      </select>
+    </div>
+    <div class="option-row">
+      <label>Output format</label>
+      <div class="radio-group">
+        <label class="radio-pill"><input type="radio" name="ocrOut" value="txt" checked><span>Text file (.txt)</span></label>
+        <label class="radio-pill"><input type="radio" name="ocrOut" value="copy"><span>Show in browser</span></label>
+      </div>
+    </div>
+  </div>
+  <div id="ocrProgress" style="display:none; margin-top: 16px;">
+    <div style="background: var(--bg-card); border: 1px solid var(--line); border-radius: 12px; padding: 16px;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+        <span style="font-size: 13px; font-weight: 600;" id="ocrStage">Loading OCR engine…</span>
+        <span style="font-size: 13px; color: var(--ink-muted);" id="ocrPct">0%</span>
+      </div>
+      <div style="background: var(--line-soft); height: 8px; border-radius: 4px; overflow: hidden;">
+        <div id="ocrBar" style="background: var(--accent); height: 100%; width: 0%; transition: width .3s ease;"></div>
+      </div>
+    </div>
+  </div>
+  <div id="ocrResultBox" style="display:none; margin-top: 16px;">
+    <div style="background: var(--bg-card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; max-height: 300px; overflow: auto;">
+      <pre id="ocrResult" style="white-space: pre-wrap; word-wrap: break-word; font-family: ui-monospace, monospace; font-size: 13px; color: var(--ink); margin: 0;"></pre>
+    </div>
+  </div>
+  <div class="tool-actions">
+    <button class="btn-clear" id="clearBtn" type="button">Clear</button>
+    <button class="btn-action" id="actionBtn" type="button">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      Extract text
+    </button>
+  </div>
+  <div class="status" id="status"></div>
+`;
+
+function reset() {
+  currentFile = null;
+  fileInput.value = '';
+  fileList.classList.remove('active');
+  fileList.innerHTML = FILELIST_TEMPLATE;
+  rebindControls();
+  showDropzone(dropzone);
+}
+
+function rebindControls() {
+  document.getElementById('clearBtn').addEventListener('click', reset);
+  document.getElementById('actionBtn').addEventListener('click', doAction);
+}
+
+reset();
+
+setupDropzone(dropzone, fileInput, newFiles => {
+  const accepted = filterByExtension(newFiles, ['pdf', 'jpg', 'jpeg', 'png']);
+  if (accepted.length === 0) { showToast('Wrong file type', 'Please pick a PDF, JPG, or PNG.', 'error'); return; }
+  currentFile = accepted[0];
+  document.getElementById('fileSize').textContent = formatSize(currentFile.size);
+  document.getElementById('fileItems').innerHTML = renderFileItems([currentFile], { reorder: false, removable: false });
+  hideDropzone(dropzone);
+  fileList.classList.add('active');
+});
+
+function setProgress(stage, pct) {
+  document.getElementById('ocrProgress').style.display = '';
+  document.getElementById('ocrStage').textContent = stage;
+  document.getElementById('ocrPct').textContent = pct + '%';
+  document.getElementById('ocrBar').style.width = pct + '%';
+}
+
+async function doAction() {
+  if (!currentFile) return;
+  const btn = document.getElementById('actionBtn');
+  setButtonLoading(btn, true);
+  document.getElementById('ocrResultBox').style.display = 'none';
+
+  try {
+    const lang = document.getElementById('ocrLang').value;
+    const outFormat = document.querySelector('input[name="ocrOut"]:checked').value;
+
+    const isPdf = currentFile.name.toLowerCase().endsWith('.pdf');
+    let imagesToOcr = []; // canvases or blobs
+
+    if (isPdf) {
+      setProgress('Rendering PDF pages…', 5);
+      const buf = await currentFile.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 2 });
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+        imagesToOcr.push(canvas);
+        setProgress('Rendered page ' + i + ' of ' + pdf.numPages, 5 + Math.round((i / pdf.numPages) * 15));
+      }
+    } else {
+      imagesToOcr = [currentFile];
+    }
+
+    setProgress('Loading OCR engine…', 25);
+    const worker = await Tesseract.createWorker(lang, 1, {
+      logger: m => {
+        if (m.status === 'recognizing text' && m.progress != null) {
+          setProgress('Reading text… ', 30 + Math.round(m.progress * 65));
+        } else if (m.status) {
+          setProgress(m.status.charAt(0).toUpperCase() + m.status.slice(1) + '…', 30);
+        }
+      }
+    });
+
+    let allText = '';
+    for (let i = 0; i < imagesToOcr.length; i++) {
+      const { data } = await worker.recognize(imagesToOcr[i]);
+      allText += (i > 0 ? '\n\n--- Page ' + (i + 1) + ' ---\n\n' : '') + data.text.trim();
+    }
+    await worker.terminate();
+    setProgress('Done!', 100);
+
+    if (!allText.trim()) {
+      showToast('No text found', 'OCR couldn\'t detect any readable text in this file.', 'error');
+      setButtonLoading(btn, false);
+      return;
+    }
+
+    if (outFormat === 'txt') {
+      const baseName = currentFile.name.replace(/\.(pdf|jpe?g|png)$/i, '');
+      downloadBlob(new Blob([allText], { type: 'text/plain' }), baseName + '-ocr.txt');
+      showToast(getRandomSuccess('ocr'), 'Text saved as a .txt file.', 'success');
+    } else {
+      document.getElementById('ocrResult').textContent = allText;
+      document.getElementById('ocrResultBox').style.display = '';
+      showToast(getRandomSuccess('ocr'), 'Scroll down to see the extracted text.', 'success');
+    }
+
+    showDoneState(fileList, 'OCR another file', reset);
+  } catch (err) {
+    console.error(err);
+    showToast('Something went wrong', err.message, 'error');
+    setButtonLoading(btn, false);
+    document.getElementById('ocrProgress').style.display = 'none';
+  }
+}
+</script>
+
+</body>
+</html>

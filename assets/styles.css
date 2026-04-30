@@ -590,6 +590,97 @@ nav {
   object-fit: contain;
   display: block;
 }
+.preview-item.rotated-90 canvas { transform: rotate(90deg); }
+.preview-item.rotated-180 canvas { transform: rotate(180deg); }
+.preview-item.rotated-270 canvas { transform: rotate(270deg); }
+.preview-item.deleted { opacity: .25; }
+.preview-item.deleted::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(239, 68, 68, .15);
+  pointer-events: none;
+}
+.preview-item.dragging { opacity: .4; cursor: grabbing; }
+.preview-item-toolbar {
+  position: absolute;
+  top: 6px; left: 6px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+.preview-item:hover .preview-item-toolbar { opacity: 1; }
+.preview-item-toolbar button {
+  width: 26px; height: 26px;
+  border-radius: 6px;
+  border: none;
+  background: rgba(15,15,14,.85);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s ease;
+}
+.preview-item-toolbar button:hover { background: var(--accent); }
+
+/* ============ SIGNATURE PAD ============ */
+.signature-pad-wrap {
+  background: var(--bg-card);
+  border: 2px solid var(--line);
+  border-radius: var(--radius-md);
+  margin-top: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.signature-pad-wrap canvas {
+  display: block;
+  width: 100%;
+  height: 220px;
+  cursor: crosshair;
+  touch-action: none;
+  background: linear-gradient(to bottom, transparent calc(100% - 40px), var(--line-soft) calc(100% - 40px), var(--line-soft) calc(100% - 39px), transparent calc(100% - 39px));
+}
+.signature-pad-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-top: 1px solid var(--line);
+  background: var(--bg);
+}
+.signature-pad-actions p {
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+.btn-mini {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--ink-soft);
+  transition: all .15s ease;
+  font-family: inherit;
+}
+.btn-mini:hover { background: var(--bg-card); color: var(--ink); }
+
+.password-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  background: var(--bg-card);
+  color: var(--ink);
+  outline: none;
+  transition: border-color .2s ease;
+}
+.password-input:focus { border-color: var(--accent); }
 .preview-item-num {
   position: absolute;
   bottom: 4px; left: 4px;

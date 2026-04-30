@@ -9,60 +9,46 @@ Free, fast, and private PDF tools. Everything runs in your browser — files nev
 | Merge PDF | ✅ Live | Combine multiple PDFs into one, in any order |
 | Split PDF | ✅ Live | Extract specific pages or split into individual files |
 | Compress PDF | ✅ Live | Reduce file size with adjustable quality |
+| Organize PDF | ✅ Live | Drag to reorder, rotate, or delete pages visually |
+| Watermark PDF | ✅ Live | Add text or image watermark to all pages |
+| Sign PDF | ✅ Live | Draw your signature and place it on any page |
+| Unlock PDF | ✅ Live | Remove password protection (requires password) |
+| OCR PDF | ✅ Live | Extract text from scanned PDFs using Tesseract.js |
 | Word to PDF | ✅ Live | Convert .docx files to PDF |
 | PDF to JPG | ✅ Live | Convert each page to a high-quality JPG image |
 | Edit PDF | ✅ Live | Add watermarks, text, and page numbers |
-| PDF to Word | ⚠️ Basic | Text-only extraction (full conversion coming soon — needs a server) |
+| Protect PDF | ✅ Live | Password-protect PDFs with RC4 128-bit encryption |
+| PDF to Word | ⚠️ Basic | Text-only extraction (full conversion needs server) |
 
 ## File Structure
 
 ```
 quickpdf/
-├── index.html              # Homepage
-├── merge.html              # Merge PDF tool
-├── split.html              # Split PDF tool
-├── compress.html           # Compress PDF tool
-├── pdf-to-jpg.html         # PDF to JPG converter
-├── word-to-pdf.html        # Word to PDF converter
-├── pdf-to-word.html        # PDF to Word (basic text extract)
-├── edit.html               # Edit PDF (watermarks, page numbers)
+├── index.html
+├── merge.html  split.html  compress.html
+├── organize.html  watermark.html  sign.html
+├── unlock.html  ocr.html  protect.html
+├── pdf-to-jpg.html  word-to-pdf.html  pdf-to-word.html  edit.html
 └── assets/
-    ├── styles.css          # Shared CSS
-    └── common.js           # Shared JS utilities
+    ├── styles.css
+    └── common.js
 ```
 
 ## Tech Stack
 
-- **Pure HTML/CSS/JavaScript** — no build step, no framework
-- **pdf-lib** — for merging, splitting, editing PDFs
-- **pdf.js** (Mozilla) — for rendering PDFs and extracting text
-- **jsPDF** — for generating compressed PDFs and Word→PDF
-- **mammoth.js** — for parsing .docx files
-- **html2pdf.js** — for converting HTML to PDF
-- **JSZip** — for creating ZIP downloads
-
-All libraries loaded from CDN — no installation needed.
-
-## Deploying to Vercel
-
-1. Upload all files (preserving the folder structure) to your GitHub repo
-2. Vercel auto-deploys on every push
-3. That's it — no build configuration needed
-
-## Roadmap
-
-- [ ] PDF to Word with full formatting (needs server/API)
-- [ ] OCR (scanned PDF → searchable text)
-- [ ] Sign PDF
-- [ ] Unlock encrypted PDFs
-- [ ] Rotate / Reorder pages
-- [ ] Watermark with images
-- [ ] Compare PDFs
+Pure HTML/CSS/JavaScript — no build step. Libraries from CDN:
+- **pdf-lib** — merging, splitting, editing, watermarking, signing
+- **pdf.js** — rendering, text extraction, password decryption
+- **jsPDF** — compression and Word→PDF
+- **mammoth.js** — parsing .docx files
+- **html2pdf.js** — HTML to PDF
+- **Tesseract.js** — browser OCR
+- **JSZip** — ZIP downloads
 
 ## Privacy
 
 No analytics. No tracking. No file uploads. Everything happens in your browser.
 
-## License
+## Deploying
 
-Free for personal and commercial use.
+Upload all files (preserving folder structure) to GitHub. Vercel auto-deploys.

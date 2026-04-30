@@ -180,7 +180,13 @@ const SUCCESS_MESSAGES = {
   'pdf-to-jpg': ['Snapshots ready! 📸', 'Images delivered! 🖼️', 'Pixel perfect! ✨', 'JPGs are yours! 🎨'],
   'word-to-pdf': ['Polished and PDF\'d! ✨', 'Document delivered!', 'Ready to share! 📄', 'Looks great!'],
   'pdf-to-word': ['Text extracted! 📝', 'Word doc ready!', 'All yours to edit!', 'Done and dusted! ✅'],
-  edit:        ['Edited and ready! ✏️', 'Looking sharp! ✨', 'Polished to perfection!', 'Nailed it! 🎯']
+  edit:        ['Edited and ready! ✏️', 'Looking sharp! ✨', 'Polished to perfection!', 'Nailed it! 🎯'],
+  organize:    ['Tidied up nicely! 📚', 'Pages reorganized!', 'Order restored! ✨', 'Looking organized! 🗂️'],
+  watermark:   ['Watermarked! 💧', 'Stamped and sealed! 🔖', 'Branded and ready!', 'Mark applied! ✨'],
+  sign:        ['Signed and sealed! ✍️', 'Your John Hancock is on it!', 'Signature applied! 🖋️', 'Officially yours!'],
+  unlock:      ['Unlocked! 🔓', 'Free as a bird!', 'Password removed! ✨', 'No more locks! 🗝️'],
+  ocr:         ['Text extracted! 🤖', 'OCR magic complete! ✨', 'Words liberated! 📖', 'Scanned and read!'],
+  protect:     ['Locked tight! 🔒', 'Protected and secure!', 'Password set! 🛡️', 'Encrypted! ✨']
 };
 
 function getRandomSuccess(toolKey) {

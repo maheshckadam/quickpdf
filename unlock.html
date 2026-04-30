@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Unlock PDF — Quickpdf</title>
+<meta name="description" content="Remove password protection from a PDF (when you know the password). Free." />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ff5733'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='sans-serif' font-weight='700' font-size='18' fill='white' font-style='italic'%3EQ%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+</script>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo"><span class="logo-mark">Q</span>Quickpdf</a>
+    <div class="nav-links">
+      <a href="index.html#tools">All tools</a>
+      <a href="index.html#how">How it works</a>
+      <a href="index.html" class="btn btn-primary">← Back to home</a>
+    </div>
+  </div>
+</nav>
+
+<main class="tool-page">
+  <div class="tool-breadcrumb">
+    <a href="index.html">Home</a>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+    <span>Unlock PDF</span>
+  </div>
+
+  <div class="tool-header fade-up">
+    <div class="tool-header-icon tc-green">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+    </div>
+    <h1>Unlock <em>a PDF.</em></h1>
+    <p>Remove password protection from a PDF. <strong>You must know the password</strong> — this isn't a cracker, it's a legitimate decryption tool.</p>
+  </div>
+
+  <div id="dropzone" class="dropzone fade-up delay-1">
+    <div class="dropzone-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M12 18v-6M9 15l3-3 3 3"/></svg>
+    </div>
+    <h3>Drop a locked PDF here</h3>
+    <p>or click to browse</p>
+    <button class="btn-select" type="button">Select PDF file</button>
+    <input type="file" id="fileInput" accept="application/pdf" style="display:none;" />
+  </div>
+
+  <div class="file-list" id="fileList"></div>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand"><a href="index.html" class="logo"><span class="logo-mark">Q</span>Quickpdf</a><p>The free, fast, private way to work with PDFs.</p></div>
+    <div class="footer-col"><h5>Tools</h5><a href="merge.html">Merge PDF</a><a href="split.html">Split PDF</a><a href="compress.html">Compress PDF</a><a href="organize.html">Organize PDF</a><a href="watermark.html">Watermark PDF</a><a href="sign.html">Sign PDF</a><a href="unlock.html">Unlock PDF</a><a href="ocr.html">OCR PDF</a></div>
+    <div class="footer-col"><h5>Company</h5><a href="#">About</a><a href="#">Blog</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+    <div class="footer-col"><h5>Connect</h5><a href="#">Twitter</a><a href="#">GitHub</a><a href="#">Contact</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Quickpdf. Made with care.</span><span>Your files. Your device. Always.</span></div>
+</footer>
+
+<script src="assets/common.js"></script>
+<script>
+const { PDFDocument } = PDFLib;
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+const fileList = document.getElementById('fileList');
+let currentFile = null;
+let isEncrypted = false;
+
+const FILELIST_TEMPLATE = `
+  <div class="file-list-head"><h4>File to unlock</h4><span id="fileSize"></span></div>
+  <div id="fileItems"></div>
+  <div class="tool-options">
+    <h4>Password</h4>
+    <div class="option-row" style="flex-direction: column; align-items: stretch; gap: 8px;">
+      <label>Enter the PDF's current password</label>
+      <input type="password" class="password-input" id="pwInput" placeholder="Password" autocomplete="off">
+    </div>
+    <p style="font-size: 12px; color: var(--ink-muted); margin-top: 8px; line-height: 1.5;">
+      If your PDF has only an "owner password" (limits printing/copying but opens without one), you can leave this empty.
+    </p>
+  </div>
+  <div class="tool-actions">
+    <button class="btn-clear" id="clearBtn" type="button">Clear</button>
+    <button class="btn-action" id="actionBtn" type="button">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+      Unlock &amp; download
+    </button>
+  </div>
+  <div class="status" id="status"></div>
+`;
+
+function reset() {
+  currentFile = null;
+  isEncrypted = false;
+  fileInput.value = '';
+  fileList.classList.remove('active');
+  fileList.innerHTML = FILELIST_TEMPLATE;
+  rebindControls();
+  showDropzone(dropzone);
+}
+
+function rebindControls() {
+  document.getElementById('clearBtn').addEventListener('click', reset);
+  document.getElementById('actionBtn').addEventListener('click', doAction);
+  document.getElementById('pwInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doAction();
+  });
+}
+
+reset();
+
+setupDropzone(dropzone, fileInput, async newFiles => {
+  const pdfs = filterByExtension(newFiles, ['pdf']);
+  if (pdfs.length === 0) { showToast('Wrong file type', 'Please select a PDF.', 'error'); return; }
+  currentFile = pdfs[0];
+  document.getElementById('fileSize').textContent = formatSize(currentFile.size);
+  document.getElementById('fileItems').innerHTML = renderFileItems([currentFile], { reorder: false, removable: false });
+  hideDropzone(dropzone);
+  fileList.classList.add('active');
+
+  // Detect if encrypted
+  try {
+    const buf = await currentFile.arrayBuffer();
+    await PDFDocument.load(buf);
+    isEncrypted = false;
+    showToast('Heads up', 'This PDF doesn\'t look password-protected.', 'info', 4000);
+  } catch (err) {
+    if (err.message && err.message.toLowerCase().includes('encrypt')) {
+      isEncrypted = true;
+    }
+  }
+});
+
+async function doAction() {
+  if (!currentFile) return;
+  const btn = document.getElementById('actionBtn');
+  const password = document.getElementById('pwInput').value;
+  setButtonLoading(btn, true);
+
+  try {
+    const buf = await currentFile.arrayBuffer();
+
+    // pdf-lib can't decrypt with password — use pdf.js to decrypt then reload with pdf-lib
+    // Strategy: load with pdf.js (which supports password), re-render every page to a new PDF
+    // But that loses quality. A better approach: use pdf.js to verify password, then load
+    // with pdf-lib using ignoreEncryption (works for owner-password PDFs).
+
+    // First, try the simple case: PDF only has owner password (no user password)
+    try {
+      const pdfDoc = await PDFDocument.load(buf, { ignoreEncryption: true });
+      const newDoc = await PDFDocument.create();
+      const pages = await newDoc.copyPages(pdfDoc, pdfDoc.getPageIndices());
+      pages.forEach(p => newDoc.addPage(p));
+      // Copy metadata
+      try {
+        if (pdfDoc.getTitle()) newDoc.setTitle(pdfDoc.getTitle());
+        if (pdfDoc.getAuthor()) newDoc.setAuthor(pdfDoc.getAuthor());
+      } catch {}
+      const bytes = await newDoc.save();
+      const baseName = currentFile.name.replace(/\.pdf$/i, '');
+      downloadBlob(new Blob([bytes], { type: 'application/pdf' }), baseName + '-unlocked.pdf');
+      showToast(getRandomSuccess('unlock'), 'Restrictions removed. PDF is now unrestricted.', 'success');
+      showDoneState(fileList, 'Unlock another PDF', reset);
+      return;
+    } catch (innerErr) {
+      // PDF has a real user password — need pdf.js
+      if (!password) {
+        showToast('Password required', 'This PDF needs a password to open. Enter it above.', 'error');
+        setButtonLoading(btn, false);
+        return;
+      }
+    }
+
+    // Use pdf.js to decrypt with password, then re-render to a new PDF
+    showToast('Unlocking…', 'Decrypting with your password.', 'info', 3000);
+    const pdfjsDoc = await pdfjsLib.getDocument({ data: buf, password }).promise;
+
+    // Re-render each page to a new PDF
+    const newDoc = await PDFDocument.create();
+    for (let i = 1; i <= pdfjsDoc.numPages; i++) {
+      const page = await pdfjsDoc.getPage(i);
+      const viewport = page.getViewport({ scale: 2 });
+      const canvas = document.createElement('canvas');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+      const pngBytes = await new Promise(res => canvas.toBlob(b => b.arrayBuffer().then(res), 'image/png'));
+      const img = await newDoc.embedPng(pngBytes);
+      const newPage = newDoc.addPage([viewport.width / 2, viewport.height / 2]);
+      newPage.drawImage(img, { x: 0, y: 0, width: viewport.width / 2, height: viewport.height / 2 });
+    }
+
+    const bytes = await newDoc.save();
+    const baseName = currentFile.name.replace(/\.pdf$/i, '');
+    downloadBlob(new Blob([bytes], { type: 'application/pdf' }), baseName + '-unlocked.pdf');
+    showToast(getRandomSuccess('unlock'), 'Password removed. PDF is now unlocked.', 'success');
+    showDoneState(fileList, 'Unlock another PDF', reset);
+
+  } catch (err) {
+    console.error(err);
+    let msg = err.message || 'Could not unlock PDF';
+    if (msg.toLowerCase().includes('password')) {
+      msg = 'Wrong password. Try again.';
+    }
+    showToast('Could not unlock', msg, 'error');
+    setButtonLoading(btn, false);
+  }
+}
+</script>
+
+</body>
+</html>

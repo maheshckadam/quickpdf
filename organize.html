@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Organize PDF — Quickpdf</title>
+<meta name="description" content="Reorder, rotate, and delete pages in your PDF visually. Free and private." />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ff5733'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='sans-serif' font-weight='700' font-size='18' fill='white' font-style='italic'%3EQ%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+</script>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo"><span class="logo-mark">Q</span>Quickpdf</a>
+    <div class="nav-links">
+      <a href="index.html#tools">All tools</a>
+      <a href="index.html#how">How it works</a>
+      <a href="index.html" class="btn btn-primary">← Back to home</a>
+    </div>
+  </div>
+</nav>
+
+<main class="tool-page" style="max-width: 1100px;">
+  <div class="tool-breadcrumb">
+    <a href="index.html">Home</a>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+    <span>Organize PDF</span>
+  </div>
+
+  <div class="tool-header fade-up">
+    <div class="tool-header-icon tc-purple">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+    </div>
+    <h1>Organize <em>a PDF.</em></h1>
+    <p>Drag to reorder pages, rotate them, or delete what you don't need. Hover a page to see its toolbar.</p>
+  </div>
+
+  <div id="dropzone" class="dropzone fade-up delay-1">
+    <div class="dropzone-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M12 18v-6M9 15l3-3 3 3"/></svg>
+    </div>
+    <h3>Drop a PDF here</h3>
+    <p>or click to browse — pick one PDF</p>
+    <button class="btn-select" type="button">Select PDF file</button>
+    <input type="file" id="fileInput" accept="application/pdf" style="display:none;" />
+  </div>
+
+  <div class="file-list" id="fileList"></div>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand"><a href="index.html" class="logo"><span class="logo-mark">Q</span>Quickpdf</a><p>The free, fast, private way to work with PDFs.</p></div>
+    <div class="footer-col"><h5>Tools</h5><a href="merge.html">Merge PDF</a><a href="split.html">Split PDF</a><a href="compress.html">Compress PDF</a><a href="organize.html">Organize PDF</a><a href="watermark.html">Watermark PDF</a><a href="sign.html">Sign PDF</a><a href="unlock.html">Unlock PDF</a><a href="ocr.html">OCR PDF</a></div>
+    <div class="footer-col"><h5>Company</h5><a href="#">About</a><a href="#">Blog</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+    <div class="footer-col"><h5>Connect</h5><a href="#">Twitter</a><a href="#">GitHub</a><a href="#">Contact</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Quickpdf. Made with care.</span><span>Your files. Your device. Always.</span></div>
+</footer>
+
+<script src="assets/common.js"></script>
+<script>
+const { PDFDocument, degrees } = PDFLib;
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+const fileList = document.getElementById('fileList');
+let currentFile = null;
+let pageBuffer = null;
+// pageState: array of { originalIndex, rotation, deleted }, ordered by current display order
+let pageState = [];
+
+const FILELIST_TEMPLATE = `
+  <div class="file-list-head">
+    <h4>Your pages — drag to reorder</h4>
+    <span id="pageCount">0 pages</span>
+  </div>
+  <div class="preview-grid" id="previewGrid"></div>
+  <div class="tool-actions">
+    <button class="btn-clear" id="clearBtn" type="button">Reset</button>
+    <button class="btn-action" id="actionBtn" type="button">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      Save &amp; download
+    </button>
+  </div>
+  <div class="status" id="status"></div>
+`;
+
+function reset() {
+  currentFile = null;
+  pageBuffer = null;
+  pageState = [];
+  fileInput.value = '';
+  fileList.classList.remove('active');
+  fileList.innerHTML = FILELIST_TEMPLATE;
+  rebindControls();
+  showDropzone(dropzone);
+}
+
+function rebindControls() {
+  document.getElementById('clearBtn').addEventListener('click', reset);
+  document.getElementById('actionBtn').addEventListener('click', doAction);
+}
+
+reset();
+
+setupDropzone(dropzone, fileInput, async newFiles => {
+  const pdfs = filterByExtension(newFiles, ['pdf']);
+  if (pdfs.length === 0) { showToast('Wrong file type', 'Please select a PDF.', 'error'); return; }
+  currentFile = pdfs[0];
+  await loadPreviews();
+});
+
+async function loadPreviews() {
+  hideDropzone(dropzone);
+  fileList.classList.add('active');
+  showToast('Loading preview…', 'Rendering thumbnails.', 'info', 2000);
+  try {
+    const buf = await currentFile.arrayBuffer();
+    pageBuffer = buf;
+    const pdfjsDoc = await pdfjsLib.getDocument({ data: buf.slice(0) }).promise;
+    const total = pdfjsDoc.numPages;
+    pageState = Array.from({ length: total }, (_, i) => ({ originalIndex: i, rotation: 0, deleted: false }));
+
+    const pg = document.getElementById('previewGrid');
+    pg.innerHTML = '';
+    document.getElementById('pageCount').textContent = total + ' page' + (total !== 1 ? 's' : '');
+
+    for (let i = 0; i < total; i++) {
+      const page = await pdfjsDoc.getPage(i + 1);
+      const viewport = page.getViewport({ scale: 0.5 });
+      const canvas = document.createElement('canvas');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+
+      const item = document.createElement('div');
+      item.className = 'preview-item';
+      item.draggable = true;
+      item.dataset.idx = i;
+      item.innerHTML = `
+        <div class="preview-item-toolbar">
+          <button data-act="rotate" title="Rotate"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg></button>
+          <button data-act="delete" title="Delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+        </div>
+        <span class="preview-item-num">${i + 1}</span>
+      `;
+      item.insertBefore(canvas, item.querySelector('.preview-item-num'));
+      pg.appendChild(item);
+
+      item.querySelector('[data-act="rotate"]').addEventListener('click', e => {
+        e.stopPropagation();
+        const idx = parseInt(item.dataset.idx, 10);
+        const state = pageState[idx];
+        state.rotation = (state.rotation + 90) % 360;
+        applyVisualRotation(item, state.rotation);
+      });
+      item.querySelector('[data-act="delete"]').addEventListener('click', e => {
+        e.stopPropagation();
+        const idx = parseInt(item.dataset.idx, 10);
+        pageState[idx].deleted = !pageState[idx].deleted;
+        item.classList.toggle('deleted', pageState[idx].deleted);
+        updateRemainingCount();
+      });
+
+      // Drag and drop
+      item.addEventListener('dragstart', e => {
+        item.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', item.dataset.idx);
+      });
+      item.addEventListener('dragend', () => item.classList.remove('dragging'));
+      item.addEventListener('dragover', e => {
+        e.preventDefault();
+        const dragging = pg.querySelector('.dragging');
+        if (!dragging || dragging === item) return;
+        const rect = item.getBoundingClientRect();
+        const after = (e.clientX - rect.left) > rect.width / 2;
+        if (after) item.parentNode.insertBefore(dragging, item.nextSibling);
+        else item.parentNode.insertBefore(dragging, item);
+      });
+    }
+
+    pg.addEventListener('drop', e => {
+      e.preventDefault();
+      // After drop, rebuild pageState order from DOM
+      const newOrder = [...pg.querySelectorAll('.preview-item')].map(el => parseInt(el.dataset.idx, 10));
+      pageState = newOrder.map(idx => pageState[idx]);
+      // Reset data-idx attributes to new positions and update visible numbers
+      [...pg.querySelectorAll('.preview-item')].forEach((el, newPos) => {
+        el.dataset.idx = newPos;
+        el.querySelector('.preview-item-num').textContent = newPos + 1;
+      });
+    });
+  } catch (err) {
+    console.error(err);
+    showToast('Could not load PDF', err.message, 'error');
+  }
+}
+
+function applyVisualRotation(item, deg) {
+  item.classList.remove('rotated-90', 'rotated-180', 'rotated-270');
+  if (deg === 90) item.classList.add('rotated-90');
+  else if (deg === 180) item.classList.add('rotated-180');
+  else if (deg === 270) item.classList.add('rotated-270');
+}
+
+function updateRemainingCount() {
+  const remaining = pageState.filter(s => !s.deleted).length;
+  document.getElementById('pageCount').textContent = remaining + ' of ' + pageState.length + ' page' + (pageState.length !== 1 ? 's' : '');
+}
+
+async function doAction() {
+  if (!pageBuffer) return;
+  const remaining = pageState.filter(s => !s.deleted);
+  if (remaining.length === 0) {
+    showToast('No pages left', 'You\'ve deleted every page. Restore at least one.', 'error');
+    return;
+  }
+  const btn = document.getElementById('actionBtn');
+  setButtonLoading(btn, true);
+  showToast('Saving…', 'Building your reorganized PDF.', 'info', 2000);
+
+  try {
+    const srcDoc = await PDFDocument.load(pageBuffer.slice(0), { ignoreEncryption: true });
+    const newDoc = await PDFDocument.create();
+
+    // Copy pages in current order, applying rotation
+    const indicesToCopy = remaining.map(s => s.originalIndex);
+    const copiedPages = await newDoc.copyPages(srcDoc, indicesToCopy);
+
+    copiedPages.forEach((page, i) => {
+      const state = remaining[i];
+      if (state.rotation) {
+        const currentRotation = page.getRotation().angle || 0;
+        page.setRotation(degrees((currentRotation + state.rotation) % 360));
+      }
+      newDoc.addPage(page);
+    });
+
+    const bytes = await newDoc.save();
+    const baseName = currentFile.name.replace(/\.pdf$/i, '');
+    downloadBlob(new Blob([bytes], { type: 'application/pdf' }), baseName + '-organized.pdf');
+    showToast(getRandomSuccess('organize'), remaining.length + ' pages saved in your new order.', 'success');
+    showDoneState(fileList, 'Organize another PDF', reset);
+  } catch (err) {
+    console.error(err);
+    showToast('Something went wrong', err.message, 'error');
+    setButtonLoading(btn, false);
+  }
+}
+</script>
+
+</body>
+</html>
