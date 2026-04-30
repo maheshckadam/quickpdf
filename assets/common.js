@@ -123,3 +123,108 @@ function setButtonLoading(btn, isLoading, originalText) {
     btn.disabled = false;
   }
 }
+
+/* ============================================
+   TOAST NOTIFICATIONS
+   ============================================ */
+function ensureToastContainer() {
+  let c = document.getElementById('toastContainer');
+  if (!c) {
+    c = document.createElement('div');
+    c.id = 'toastContainer';
+    c.className = 'toast-container';
+    document.body.appendChild(c);
+  }
+  return c;
+}
+
+const TOAST_ICONS = {
+  success: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
+  error:   '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>',
+  info:    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>'
+};
+
+function showToast(title, message = '', type = 'success', duration = 5000) {
+  const container = ensureToastContainer();
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.innerHTML = `
+    <div class="toast-icon">${TOAST_ICONS[type] || TOAST_ICONS.info}</div>
+    <div class="toast-content">
+      <div class="toast-title">${escapeHtml(title)}</div>
+      ${message ? `<div class="toast-message">${escapeHtml(message)}</div>` : ''}
+    </div>
+    <button class="toast-close" type="button" aria-label="Dismiss">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  `;
+  container.appendChild(toast);
+
+  const remove = () => {
+    if (toast.classList.contains('removing')) return;
+    toast.classList.add('removing');
+    setTimeout(() => toast.remove(), 300);
+  };
+  toast.querySelector('.toast-close').addEventListener('click', remove);
+  if (duration > 0) setTimeout(remove, duration);
+  return toast;
+}
+
+/* ============================================
+   FUN COMPLETION MESSAGES
+   ============================================ */
+const SUCCESS_MESSAGES = {
+  merge:       ['Stitched together! 🪡', 'PDFs joined forces! ⚡', 'All combined and ready!', 'Mission accomplished! 🎯'],
+  split:       ['Sliced and diced! 🔪', 'Pages set free! 🦋', 'Split successful!', 'Easy peasy! ✨'],
+  compress:    ['Squeezed it tight! 🤏', 'Lighter and ready! 🪶', 'Compression complete!', 'Slim and trim! 💪'],
+  'pdf-to-jpg': ['Snapshots ready! 📸', 'Images delivered! 🖼️', 'Pixel perfect! ✨', 'JPGs are yours! 🎨'],
+  'word-to-pdf': ['Polished and PDF\'d! ✨', 'Document delivered!', 'Ready to share! 📄', 'Looks great!'],
+  'pdf-to-word': ['Text extracted! 📝', 'Word doc ready!', 'All yours to edit!', 'Done and dusted! ✅'],
+  edit:        ['Edited and ready! ✏️', 'Looking sharp! ✨', 'Polished to perfection!', 'Nailed it! 🎯']
+};
+
+function getRandomSuccess(toolKey) {
+  const msgs = SUCCESS_MESSAGES[toolKey] || ['All done! ✨'];
+  return msgs[Math.floor(Math.random() * msgs.length)];
+}
+
+/* ============================================
+   DROPZONE / DONE-STATE HELPERS
+   ============================================ */
+// Hide the dropzone after a file is loaded so it's clear the file is ready
+function hideDropzone(dropzone) {
+  if (dropzone) dropzone.classList.add('hidden');
+}
+function showDropzone(dropzone) {
+  if (dropzone) dropzone.classList.remove('hidden');
+}
+
+// Show the success "done" state with a button to convert more files
+function showDoneState(container, toolLabel, onRestart) {
+  if (!container) return;
+  container.innerHTML = `
+    <div class="done-state">
+      <div class="done-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 6L9 17l-5-5"/>
+        </svg>
+      </div>
+      <h3>All set!</h3>
+      <p>Your file has been downloaded. Want to do more?</p>
+      <div class="done-actions">
+        <button type="button" class="btn-restart" id="restartBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+          ${escapeHtml(toolLabel)}
+        </button>
+        <a href="index.html" class="btn-home">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+          Try another tool
+        </a>
+      </div>
+    </div>
+  `;
+  const restartBtn = container.querySelector('#restartBtn');
+  if (restartBtn && onRestart) {
+    restartBtn.addEventListener('click', onRestart);
+  }
+}
