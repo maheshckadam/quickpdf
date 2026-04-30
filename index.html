@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Quickpdf — PDF tools, simplified.</title>
+<meta name="description" content="Free online PDF tools. Merge, split, compress, edit, and convert PDFs in seconds. No signup. 100% free." />
+<meta property="og:title" content="Quickpdf — PDF tools, simplified." />
+<meta property="og:description" content="Free online PDF tools. Merge, split, compress, edit, and convert PDFs in seconds." />
+<meta property="og:type" content="website" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ff5733'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='sans-serif' font-weight='700' font-size='18' fill='white' font-style='italic'%3EQ%3C/text%3E%3C/svg%3E" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+
+<style>
+/* ============ HOMEPAGE-SPECIFIC ============ */
+.hero { max-width: 1280px; margin: 0 auto; padding: 80px 32px 60px; position: relative; }
+.hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  margin-bottom: 28px;
+  box-shadow: var(--shadow-sm);
+}
+.hero-pill-dot {
+  width: 18px; height: 18px;
+  background: var(--green-soft);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.hero-pill-dot::after {
+  content: '';
+  width: 6px; height: 6px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .6; transform: scale(1.2); }
+}
+.hero h1 {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: clamp(48px, 8vw, 96px);
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  max-width: 900px;
+  margin-bottom: 24px;
+}
+.hero h1 em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent);
+  position: relative;
+}
+.hero h1 em::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -4px;
+  height: 3px;
+  background: var(--accent);
+  opacity: .25;
+  border-radius: 2px;
+}
+.hero-sub {
+  font-size: clamp(17px, 2vw, 20px);
+  color: var(--ink-soft);
+  max-width: 620px;
+  line-height: 1.5;
+  margin-bottom: 36px;
+}
+.hero-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.btn-cta {
+  background: var(--accent);
+  color: white;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: 0 4px 14px rgba(255,87,51,.25);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all .2s ease;
+}
+.btn-cta:hover { background: var(--accent-deep); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,87,51,.35); }
+.btn-secondary {
+  background: var(--bg-card);
+  color: var(--ink);
+  padding: 14px 22px;
+  border-radius: 12px;
+  font-size: 15px;
+  border: 1px solid var(--line);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all .2s ease;
+  font-weight: 600;
+}
+.btn-secondary:hover { background: var(--line-soft); }
+.hero-stats {
+  display: flex;
+  gap: 36px;
+  margin-top: 56px;
+  padding-top: 32px;
+  border-top: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+.stat-num {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 28px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.stat-label { font-size: 13px; color: var(--ink-muted); margin-top: 2px; }
+.hero-shape { position: absolute; pointer-events: none; z-index: -1; }
+.hero-shape-1 {
+  top: 100px; right: 5%;
+  width: 200px; height: 240px;
+  background: var(--accent-soft);
+  border-radius: 12px;
+  transform: rotate(8deg);
+  opacity: .9;
+}
+.hero-shape-2 {
+  top: 140px; right: 14%;
+  width: 200px; height: 240px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  transform: rotate(-6deg);
+  box-shadow: var(--shadow-md);
+}
+.hero-shape-3 {
+  top: 180px; right: 22%;
+  width: 200px; height: 240px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  transform: rotate(2deg);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 64px;
+  color: var(--accent);
+}
+@media (max-width: 1024px) { .hero-shape { display: none; } }
+
+.section { max-width: 1280px; margin: 0 auto; padding: 80px 32px; }
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  margin-bottom: 48px;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+.section h2 {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: clamp(36px, 5vw, 56px);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  max-width: 600px;
+}
+.section h2 em { font-style: italic; color: var(--ink-soft); }
+.section-head p {
+  color: var(--ink-soft);
+  font-size: 16px;
+  max-width: 360px;
+  line-height: 1.6;
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+.tool-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 28px;
+  cursor: pointer;
+  transition: all .25s cubic-bezier(.4, 0, .2, 1);
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+.tool-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 60%, var(--accent-soft) 200%);
+  opacity: 0;
+  transition: opacity .3s ease;
+  pointer-events: none;
+}
+.tool-card:hover { transform: translateY(-4px); border-color: var(--ink); box-shadow: var(--shadow-lg); }
+.tool-card:hover::before { opacity: 1; }
+.tool-icon {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.tool-icon svg { width: 22px; height: 22px; }
+.tool-card h3 {
+  font-family: 'Geist', sans-serif;
+  font-weight: 600;
+  font-size: 17px;
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+  color: var(--ink);
+}
+.tool-card p { font-size: 14px; color: var(--ink-soft); line-height: 1.5; }
+.tool-card .arrow {
+  position: absolute;
+  top: 28px; right: 28px;
+  opacity: 0;
+  transition: all .25s ease;
+  color: var(--ink);
+}
+.tool-card:hover .arrow { opacity: 1; transform: translate(2px, -2px); }
+.tool-card .badge {
+  position: absolute;
+  top: 16px; right: 16px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: 100px;
+}
+.badge-live { background: var(--green-soft); color: var(--green); }
+.badge-soon { background: var(--yellow-soft); color: var(--yellow); }
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 32px;
+  padding: 60px 32px;
+  max-width: 1280px;
+  margin: 0 auto;
+  border-top: 1px solid var(--line);
+}
+.feature { display: flex; gap: 14px; align-items: flex-start; }
+.feature-icon {
+  width: 36px; height: 36px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.feature h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.feature p { font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
+
+.how-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-top: 48px;
+}
+.how-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 32px;
+  position: relative;
+}
+.how-num {
+  font-family: 'Fraunces', serif;
+  font-size: 56px;
+  font-weight: 600;
+  font-style: italic;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 16px;
+  letter-spacing: -0.04em;
+}
+.how-card h3 {
+  font-family: 'Geist', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.how-card p { font-size: 14px; color: var(--ink-soft); line-height: 1.6; }
+
+@media (max-width: 768px) {
+  .hero { padding: 56px 24px 40px; }
+  .section { padding: 60px 24px; }
+  .features { padding: 40px 24px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">
+      <span class="logo-mark">Q</span>
+      Quickpdf
+    </a>
+    <div class="nav-links">
+      <a href="#tools">Tools</a>
+      <a href="#how">How it works</a>
+      <a href="merge.html" class="btn btn-primary">Try it free</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-shape hero-shape-1"></div>
+  <div class="hero-shape hero-shape-2"></div>
+  <div class="hero-shape hero-shape-3">PDF</div>
+
+  <div class="hero-pill fade-up">
+    <span class="hero-pill-dot"></span>
+    <span>100% free · No signup required</span>
+  </div>
+
+  <h1 class="fade-up delay-1">
+    PDF tools,<br>
+    <em>simplified.</em>
+  </h1>
+  <p class="hero-sub fade-up delay-2">
+    Merge, split, compress and convert PDFs in seconds. Everything happens
+    in your browser — your files never leave your device.
+  </p>
+
+  <div class="hero-actions fade-up delay-3">
+    <a href="merge.html" class="btn-cta">
+      Try it free
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+    <a href="#tools" class="btn-secondary">View all tools</a>
+  </div>
+
+  <div class="hero-stats fade-up delay-4">
+    <div><div class="stat-num">7+</div><div class="stat-label">PDF tools</div></div>
+    <div><div class="stat-num">100%</div><div class="stat-label">Private &amp; offline</div></div>
+    <div><div class="stat-num">$0</div><div class="stat-label">Forever free</div></div>
+    <div><div class="stat-num">∞</div><div class="stat-label">No file limits</div></div>
+  </div>
+</section>
+
+<section class="section" id="tools">
+  <div class="section-head">
+    <div>
+      <div class="eyebrow">Toolkit</div>
+      <h2>Every PDF tool<br><em>you'll ever need.</em></h2>
+    </div>
+    <p>Built for speed. Designed for clarity. Free for everyone — no watermarks, no signup, no nonsense.</p>
+  </div>
+
+  <div class="tools-grid">
+    <a href="merge.html" class="tool-card">
+      <span class="badge badge-live">Live</span>
+      <div class="tool-icon tc-orange">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3M9 12h6M12 9v6"/></svg>
+      </div>
+      <h3>Merge PDF</h3>
+      <p>Combine PDFs in any order you want with the easiest merger.</p>
+      <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M7 7h10v10"/></svg>
+    </a>
+
+    <a href="split.html" class="tool-card">
+      <span class="badge badge-live">Live</span>
+      <div class="tool-icon tc-blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 15l3-3 3 3M12 12v6"/></svg>
+      </div>
+      <h3>Split PDF</h3>
+      <p>Separate one page or a whole set into independent PDF files.</p>
+      <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M7 7h10v10"/></svg>
+    </a>
+
+    <a href="compress.html" class="tool-card">
+      <span class="badge badge-live">Live</span>
+      <div class="tool-icon tc-green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8L13 16L9 12L3 18M21 8H15M21 8V14"/></svg>
+      </div>
+      <h3>Compress PDF</h3>
+      <p>Reduce file size while keeping maximum PDF quality intact.</p>
+      <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M7 7h10v10"/></svg>
+    </a>
+
+    <a href="pdf-to-word.html" class="tool-card">
+      <span class="badge badge-soon">Soon</span>
+      <div class="tool-icon tc-purple">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+      </div>
+      <h3>PDF to Word</h3>
+      <p>Convert PDFs into editable DOC and DOCX with high accuracy.</p>
+      <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M7 7h10v10"/></svg>
+    </a>
+
+    <a href="word-to-pdf.html" class="tool-card">
+      <span class="badge badge-live">Live</span>
+      <div class="tool-icon tc-yellow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M12 18v-6M9 15l3-3 3 3"/></svg>
+      </div>
+      <h3>Word to PDF</h3>
+      <p>Make DOC and DOCX files easy to read by converting them to PDF.</p>
+      <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M7 7h10v10"/></svg>
+    </a>
+
+    <a href="pdf-to-jpg.html" class="tool-card">
+      <span class="badge badge-live">Live</span>
+      <div class="tool-icon tc-pink">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+      </div>
+      <h3>PDF to JPG</h3>
+      <p>Convert each PDF page into a JPG or extract embedded images.</p>
+      <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M7 7h10v10"/></svg>
+    </a>
+
+    <a href="edit.html" class="tool-card">
+      <span class="badge badge-live">Live</span>
+      <div class="tool-icon tc-blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </div>
+      <h3>Edit PDF</h3>
+      <p>Add text and page numbers to any PDF in just a few clicks.</p>
+      <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M7 7h10v10"/></svg>
+    </a>
+
+    <div class="tool-card" style="cursor: default; opacity: .7;">
+      <div class="tool-icon tc-orange">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/><path d="M12 8v4l3 3"/></svg>
+      </div>
+      <h3>More coming</h3>
+      <p>Sign, watermark, OCR, unlock, organize — new tools every month.</p>
+    </div>
+  </div>
+</section>
+
+<div class="features">
+  <div class="feature">
+    <div class="feature-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+    <div><h4>100% Private</h4><p>Files processed in your browser. Nothing uploaded anywhere.</p></div>
+  </div>
+  <div class="feature">
+    <div class="feature-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+    <div><h4>Lightning fast</h4><p>No upload time. Process files instantly on your device.</p></div>
+  </div>
+  <div class="feature">
+    <div class="feature-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></div>
+    <div><h4>Works offline</h4><p>After loading once, no internet needed. Use it anywhere.</p></div>
+  </div>
+  <div class="feature">
+    <div class="feature-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+    <div><h4>Forever free</h4><p>No watermarks. No premium tier. No catch. Just free.</p></div>
+  </div>
+</div>
+
+<section class="section" id="how">
+  <div class="section-head">
+    <div>
+      <div class="eyebrow">How it works</div>
+      <h2>Three steps.<br><em>That's it.</em></h2>
+    </div>
+    <p>Most PDF sites make you upload, wait, watch ads, and then download. We skip all of that.</p>
+  </div>
+
+  <div class="how-grid">
+    <div class="how-card">
+      <div class="how-num">01</div>
+      <h3>Drop your files</h3>
+      <p>Pick PDFs from your device — drag, drop, or browse. Add as many as you want.</p>
+    </div>
+    <div class="how-card">
+      <div class="how-num">02</div>
+      <h3>Pick your tool</h3>
+      <p>Merge, split, compress, convert — choose what you need. Reorder pages, tweak settings, the works.</p>
+    </div>
+    <div class="how-card">
+      <div class="how-num">03</div>
+      <h3>Download &amp; go</h3>
+      <p>Your file is ready in seconds. No waiting, no signup, no email required. Done.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="/" class="logo"><span class="logo-mark">Q</span>Quickpdf</a>
+      <p>The free, fast, private way to work with PDFs. Built with love for everyone who's tired of bloated PDF software.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Tools</h5>
+      <a href="merge.html">Merge PDF</a>
+      <a href="split.html">Split PDF</a>
+      <a href="compress.html">Compress PDF</a>
+      <a href="pdf-to-word.html">PDF to Word</a>
+      <a href="word-to-pdf.html">Word to PDF</a>
+      <a href="pdf-to-jpg.html">PDF to JPG</a>
+      <a href="edit.html">Edit PDF</a>
+    </div>
+    <div class="footer-col">
+      <h5>Company</h5>
+      <a href="#">About</a>
+      <a href="#">Blog</a>
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+    </div>
+    <div class="footer-col">
+      <h5>Connect</h5>
+      <a href="#">Twitter</a>
+      <a href="#">GitHub</a>
+      <a href="#">Contact</a>
+      <a href="#">Feedback</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Quickpdf. Made with care.</span>
+    <span>Your files. Your device. Always.</span>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PDF to Word — Quickpdf (Coming Soon)</title>
+<meta name="description" content="Convert PDF files into editable Word documents. Coming soon." />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ff5733'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='sans-serif' font-weight='700' font-size='18' fill='white' font-style='italic'%3EQ%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+</script>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo"><span class="logo-mark">Q</span>Quickpdf</a>
+    <div class="nav-links">
+      <a href="index.html#tools">All tools</a>
+      <a href="index.html#how">How it works</a>
+      <a href="index.html" class="btn btn-primary">← Back to home</a>
+    </div>
+  </div>
+</nav>
+
+<main class="tool-page">
+  <div class="tool-breadcrumb">
+    <a href="index.html">Home</a>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+    <span>PDF to Word</span>
+  </div>
+
+  <div class="tool-header fade-up">
+    <div class="tool-header-icon tc-purple">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+    </div>
+    <h1>PDF <em>to Word.</em></h1>
+    <p>Extract text from PDFs into a Word document. Use the basic extractor below, or wait for our full-fidelity converter coming soon.</p>
+  </div>
+
+  <div id="dropzone" class="dropzone fade-up delay-1">
+    <div class="dropzone-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M12 18v-6M9 15l3-3 3 3"/></svg>
+    </div>
+    <h3>Drop a PDF here</h3>
+    <p>or click to browse — pick one PDF</p>
+    <button class="btn-select" type="button">Select PDF file</button>
+    <input type="file" id="fileInput" accept="application/pdf" style="display:none;" />
+  </div>
+
+  <div class="file-list" id="fileList">
+    <div class="file-list-head"><h4>File to extract</h4><span id="fileSize"></span></div>
+    <div id="fileItems"></div>
+
+    <div class="tool-options">
+      <div class="option-row" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+        <label style="font-weight: 600;">⚠️ Heads up</label>
+        <p style="font-size: 13px; color: var(--ink-soft); line-height: 1.5;">
+          Browser-only PDF→Word extracts <strong>plain text</strong> — formatting, layouts, tables, and images won't be preserved.
+          For high-fidelity conversion (keeping the exact look of your PDF), we're building a server-powered version. Coming soon!
+        </p>
+      </div>
+    </div>
+
+    <div class="tool-actions">
+      <button class="btn-clear" id="clearBtn" type="button">Clear</button>
+      <button class="btn-action" id="actionBtn" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Extract text to Word
+      </button>
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand"><a href="index.html" class="logo"><span class="logo-mark">Q</span>Quickpdf</a><p>The free, fast, private way to work with PDFs.</p></div>
+    <div class="footer-col"><h5>Tools</h5><a href="merge.html">Merge PDF</a><a href="split.html">Split PDF</a><a href="compress.html">Compress PDF</a><a href="pdf-to-word.html">PDF to Word</a><a href="word-to-pdf.html">Word to PDF</a><a href="pdf-to-jpg.html">PDF to JPG</a><a href="edit.html">Edit PDF</a></div>
+    <div class="footer-col"><h5>Company</h5><a href="#">About</a><a href="#">Blog</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+    <div class="footer-col"><h5>Connect</h5><a href="#">Twitter</a><a href="#">GitHub</a><a href="#">Contact</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Quickpdf. Made with care.</span><span>Your files. Your device. Always.</span></div>
+</footer>
+
+<script src="assets/common.js"></script>
+<script>
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+const fileList = document.getElementById('fileList');
+const fileItems = document.getElementById('fileItems');
+const fileSize = document.getElementById('fileSize');
+const actionBtn = document.getElementById('actionBtn');
+const clearBtn = document.getElementById('clearBtn');
+const status = document.getElementById('status');
+
+let currentFile = null;
+
+clearBtn.addEventListener('click', () => {
+  currentFile = null;
+  fileInput.value = '';
+  fileList.classList.remove('active');
+  setStatus(status, '');
+});
+
+setupDropzone(dropzone, fileInput, newFiles => {
+  const pdfs = filterByExtension(newFiles, ['pdf']);
+  if (pdfs.length === 0) { setStatus(status, 'Please select a PDF.', 'error'); return; }
+  currentFile = pdfs[0];
+  fileSize.textContent = formatSize(currentFile.size);
+  fileItems.innerHTML = renderFileItems([currentFile], { reorder: false, removable: false });
+  fileList.classList.add('active');
+  setStatus(status, '');
+});
+
+// Generate a minimal valid .docx using a string template
+function buildDocx(paragraphs) {
+  const escapeXml = s => String(s).replace(/[<>&'"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;',"'":'&apos;','"':'&quot;'}[c]));
+  const body = paragraphs.map(p => {
+    const safe = escapeXml(p);
+    return '<w:p><w:r><w:t xml:space="preserve">' + safe + '</w:t></w:r></w:p>';
+  }).join('');
+
+  const documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>${body}<w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720" w:gutter="0"/></w:sectPr></w:body>
+</w:document>`;
+
+  const contentTypes = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+</Types>`;
+
+  const rels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`;
+
+  return { documentXml, contentTypes, rels };
+}
+
+actionBtn.addEventListener('click', async () => {
+  if (!currentFile) return;
+  if (!window.JSZip) {
+    // Lazy-load JSZip
+    await new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+  setButtonLoading(actionBtn, true);
+  setStatus(status, 'Extracting text from PDF…');
+  try {
+    const buf = await currentFile.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    const paragraphs = [];
+
+    for (let i = 1; i <= pdf.numPages; i++) {
+      setStatus(status, 'Reading page ' + i + ' of ' + pdf.numPages + '…');
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      let pageText = '';
+      let lastY = null;
+      for (const item of content.items) {
+        if (lastY !== null && Math.abs(item.transform[5] - lastY) > 5) {
+          pageText += '\n';
+        }
+        pageText += item.str + (item.hasEOL ? '\n' : ' ');
+        lastY = item.transform[5];
+      }
+      pageText.split('\n').forEach(line => {
+        if (line.trim()) paragraphs.push(line.trim());
+      });
+      paragraphs.push(''); // blank line between pages
+    }
+
+    if (paragraphs.length === 0 || paragraphs.every(p => !p.trim())) {
+      setStatus(status, 'No text found in this PDF. (It may be scanned/image-based — needs OCR, coming soon.)', 'error');
+      setButtonLoading(actionBtn, false);
+      return;
+    }
+
+    const { documentXml, contentTypes, rels } = buildDocx(paragraphs);
+    const zip = new JSZip();
+    zip.file('[Content_Types].xml', contentTypes);
+    zip.folder('_rels').file('.rels', rels);
+    zip.folder('word').file('document.xml', documentXml);
+    const blob = await zip.generateAsync({
+      type: 'blob',
+      mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    });
+    const baseName = currentFile.name.replace(/\.pdf$/i, '');
+    downloadBlob(blob, baseName + '.docx');
+    setStatus(status, '✓ Done! Text-only Word file downloaded.', 'success');
+  } catch (err) {
+    console.error(err);
+    setStatus(status, 'Something went wrong: ' + err.message, 'error');
+  } finally {
+    setButtonLoading(actionBtn, false);
+  }
+});
+</script>
+
+</body>
+</html>
