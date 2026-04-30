@@ -748,8 +748,14 @@ footer {
   max-width: 1280px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr;
   gap: 48px;
+}
+.footer-tools-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  grid-column: span 2;
 }
 .footer-brand .logo { margin-bottom: 16px; }
 .footer-brand p {
@@ -790,6 +796,7 @@ footer {
 
 @media (max-width: 768px) {
   .footer-inner { grid-template-columns: 1fr 1fr; }
+  .footer-tools-grid { grid-column: span 2; grid-template-columns: 1fr 1fr; gap: 24px; }
   .nav-links a:not(.btn-primary) { display: none; }
   .tool-page { padding: 40px 20px 60px; }
   .dropzone { padding: 40px 20px; }
