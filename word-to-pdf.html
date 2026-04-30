@@ -91,35 +91,53 @@ const renderArea = document.getElementById('renderArea');
 
 let currentFile = null;
 
-clearBtn.addEventListener('click', () => {
+function reset() {
   currentFile = null;
   fileInput.value = '';
   fileList.classList.remove('active');
-  setStatus(status, '');
-});
+  fileList.innerHTML = `
+    <div class="file-list-head"><h4>File to convert</h4><span id="fileSize"></span></div>
+    <div id="fileItems"></div>
+    <div class="tool-actions">
+      <button class="btn-clear" id="clearBtn" type="button">Clear</button>
+      <button class="btn-action" id="actionBtn" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Convert to PDF
+      </button>
+    </div>
+    <div class="status" id="status"></div>
+  `;
+  document.getElementById('clearBtn').addEventListener('click', reset);
+  document.getElementById('actionBtn').addEventListener('click', doAction);
+  showDropzone(dropzone);
+}
+
+clearBtn.addEventListener('click', reset);
 
 setupDropzone(dropzone, fileInput, newFiles => {
   const docs = filterByExtension(newFiles, ['docx']);
   if (docs.length === 0) {
-    setStatus(status, 'Please select a .docx file. (Old .doc format is not supported in browser.)', 'error');
+    showToast('Wrong file type', 'Please pick a .docx file. (Old .doc format is not supported in browser.)', 'error');
     return;
   }
   currentFile = docs[0];
-  fileSize.textContent = formatSize(currentFile.size);
-  fileItems.innerHTML = renderFileItems([currentFile], { reorder: false, removable: false });
+  document.getElementById('fileSize').textContent = formatSize(currentFile.size);
+  document.getElementById('fileItems').innerHTML = renderFileItems([currentFile], { reorder: false, removable: false });
+  hideDropzone(dropzone);
   fileList.classList.add('active');
-  setStatus(status, '');
 });
 
-actionBtn.addEventListener('click', async () => {
+actionBtn.addEventListener('click', doAction);
+
+async function doAction() {
   if (!currentFile) return;
-  setButtonLoading(actionBtn, true);
-  setStatus(status, 'Converting Word to PDF…');
+  const btn = document.getElementById('actionBtn');
+  setButtonLoading(btn, true);
+  showToast('Converting…', 'Generating PDF from your Word doc.', 'info', 3000);
   try {
     const buf = await currentFile.arrayBuffer();
     const result = await mammoth.convertToHtml({ arrayBuffer: buf });
 
-    // Inject styled HTML
     renderArea.innerHTML = `
       <style scoped>
         h1 { font-size: 26px; margin: 24px 0 16px; font-weight: 700; }
@@ -145,15 +163,16 @@ actionBtn.addEventListener('click', async () => {
       pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
     await html2pdf().set(opt).from(renderArea).save();
-    setStatus(status, '✓ Done! Your PDF was downloaded.', 'success');
+    showToast(getRandomSuccess('word-to-pdf'), 'Your PDF is in your downloads.', 'success');
+    showDoneState(fileList, 'Convert another doc', reset);
   } catch (err) {
     console.error(err);
-    setStatus(status, 'Something went wrong: ' + err.message, 'error');
+    showToast('Something went wrong', err.message, 'error');
+    setButtonLoading(btn, false);
   } finally {
-    setButtonLoading(actionBtn, false);
     renderArea.innerHTML = '';
   }
-});
+}
 </script>
 
 </body>

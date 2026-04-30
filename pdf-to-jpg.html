@@ -102,27 +102,57 @@ const status = document.getElementById('status');
 let currentFile = null;
 const QUALITIES = { standard: 1.5, high: 2.5, max: 3.5 };
 
-clearBtn.addEventListener('click', () => {
+function reset() {
   currentFile = null;
   fileInput.value = '';
   fileList.classList.remove('active');
-  setStatus(status, '');
-});
+  fileList.innerHTML = `
+    <div class="file-list-head"><h4>File to convert</h4><span id="fileSize"></span></div>
+    <div id="fileItems"></div>
+    <div class="tool-options">
+      <h4>Options</h4>
+      <div class="option-row">
+        <label>Quality</label>
+        <div class="radio-group">
+          <label class="radio-pill"><input type="radio" name="quality" value="standard" checked><span>Standard</span></label>
+          <label class="radio-pill"><input type="radio" name="quality" value="high"><span>High</span></label>
+          <label class="radio-pill"><input type="radio" name="quality" value="max"><span>Maximum</span></label>
+        </div>
+      </div>
+    </div>
+    <div class="tool-actions">
+      <button class="btn-clear" id="clearBtn" type="button">Clear</button>
+      <button class="btn-action" id="actionBtn" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Convert to JPG
+      </button>
+    </div>
+    <div class="status" id="status"></div>
+  `;
+  document.getElementById('clearBtn').addEventListener('click', reset);
+  document.getElementById('actionBtn').addEventListener('click', doAction);
+  showDropzone(dropzone);
+}
+
+clearBtn.addEventListener('click', reset);
 
 setupDropzone(dropzone, fileInput, newFiles => {
   const pdfs = filterByExtension(newFiles, ['pdf']);
-  if (pdfs.length === 0) { setStatus(status, 'Please select a PDF.', 'error'); return; }
+  if (pdfs.length === 0) { showToast('Wrong file type', 'Please select a PDF.', 'error'); return; }
   currentFile = pdfs[0];
-  fileSize.textContent = formatSize(currentFile.size);
-  fileItems.innerHTML = renderFileItems([currentFile], { reorder: false, removable: false });
+  document.getElementById('fileSize').textContent = formatSize(currentFile.size);
+  document.getElementById('fileItems').innerHTML = renderFileItems([currentFile], { reorder: false, removable: false });
+  hideDropzone(dropzone);
   fileList.classList.add('active');
-  setStatus(status, '');
 });
 
-actionBtn.addEventListener('click', async () => {
+actionBtn.addEventListener('click', doAction);
+
+async function doAction() {
   if (!currentFile) return;
-  setButtonLoading(actionBtn, true);
-  setStatus(status, 'Converting to JPG…');
+  const btn = document.getElementById('actionBtn');
+  setButtonLoading(btn, true);
+  showToast('Converting…', 'Rendering pages to JPG.', 'info', 3000);
   try {
     const quality = document.querySelector('input[name="quality"]:checked').value;
     const scale = QUALITIES[quality];
@@ -139,10 +169,10 @@ actionBtn.addEventListener('click', async () => {
       await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
       const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.92));
       downloadBlob(blob, baseName + '.jpg');
+      showToast(getRandomSuccess('pdf-to-jpg'), '1 image downloaded.', 'success');
     } else {
       const zip = new JSZip();
       for (let i = 1; i <= pdf.numPages; i++) {
-        setStatus(status, 'Converting page ' + i + ' of ' + pdf.numPages + '…');
         const page = await pdf.getPage(i);
         const viewport = page.getViewport({ scale });
         const canvas = document.createElement('canvas');
@@ -154,15 +184,15 @@ actionBtn.addEventListener('click', async () => {
       }
       const out = await zip.generateAsync({ type: 'blob' });
       downloadBlob(out, baseName + '-images.zip');
+      showToast(getRandomSuccess('pdf-to-jpg'), pdf.numPages + ' images packed in a ZIP.', 'success');
     }
-    setStatus(status, '✓ Done! ' + pdf.numPages + ' image' + (pdf.numPages !== 1 ? 's' : '') + ' downloaded.', 'success');
+    showDoneState(fileList, 'Convert another PDF', reset);
   } catch (err) {
     console.error(err);
-    setStatus(status, 'Something went wrong: ' + err.message, 'error');
-  } finally {
-    setButtonLoading(actionBtn, false);
+    showToast('Something went wrong', err.message, 'error');
+    setButtonLoading(btn, false);
   }
-});
+}
 </script>
 
 </body>

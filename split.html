@@ -121,7 +121,46 @@ function reset() {
   fileInput.value = '';
   previewGrid.innerHTML = '';
   fileList.classList.remove('active');
-  setStatus(status, '');
+  fileList.innerHTML = `
+    <div class="file-list-head">
+      <h4>Select pages to extract</h4>
+      <span id="pageCount">0 pages</span>
+    </div>
+    <div class="tool-options">
+      <div class="option-row">
+        <label>Mode</label>
+        <div class="radio-group">
+          <label class="radio-pill"><input type="radio" name="mode" value="select" checked><span>Selected pages</span></label>
+          <label class="radio-pill"><input type="radio" name="mode" value="all"><span>Each page separately</span></label>
+        </div>
+      </div>
+    </div>
+    <div class="preview-grid" id="previewGrid"></div>
+    <div class="tool-actions">
+      <button class="btn-clear" id="clearBtn" type="button">Clear</button>
+      <button class="btn-action" id="actionBtn" type="button" disabled>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Split &amp; download
+      </button>
+    </div>
+    <div class="status" id="status"></div>
+  `;
+  rebindControls();
+  showDropzone(dropzone);
+}
+
+function rebindControls() {
+  // Re-grab elements after innerHTML reset
+  window.fileListPreviewGrid = document.getElementById('previewGrid');
+  window.fileListPageCount = document.getElementById('pageCount');
+  window.fileListActionBtn = document.getElementById('actionBtn');
+  window.fileListClearBtn = document.getElementById('clearBtn');
+  window.fileListStatus = document.getElementById('status');
+  window.fileListClearBtn.addEventListener('click', reset);
+  window.fileListActionBtn.addEventListener('click', doAction);
+  document.querySelectorAll('input[name="mode"]').forEach(r => {
+    r.addEventListener('change', updateActionState);
+  });
 }
 
 clearBtn.addEventListener('click', reset);
@@ -131,34 +170,40 @@ document.querySelectorAll('input[name="mode"]').forEach(r => {
 });
 
 function updateActionState() {
-  const mode = document.querySelector('input[name="mode"]:checked').value;
+  const modeEl = document.querySelector('input[name="mode"]:checked');
+  if (!modeEl) return;
+  const mode = modeEl.value;
+  const btn = document.getElementById('actionBtn');
+  if (!btn) return;
   if (mode === 'all') {
-    actionBtn.disabled = totalPages < 1;
-    actionBtn.querySelector('span') ? null : null;
-    actionBtn.lastChild.textContent = ' Split into ' + totalPages + ' files';
+    btn.disabled = totalPages < 1;
+    btn.lastChild.textContent = ' Split into ' + totalPages + ' files';
   } else {
-    actionBtn.disabled = selected.size < 1;
-    actionBtn.lastChild.textContent = ' Extract ' + selected.size + ' page' + (selected.size !== 1 ? 's' : '');
+    btn.disabled = selected.size < 1;
+    btn.lastChild.textContent = ' Extract ' + selected.size + ' page' + (selected.size !== 1 ? 's' : '');
   }
 }
 
 setupDropzone(dropzone, fileInput, async newFiles => {
   const pdfs = filterByExtension(newFiles, ['pdf']);
-  if (pdfs.length === 0) { setStatus(status, 'Please select a PDF file.', 'error'); return; }
+  if (pdfs.length === 0) { showToast('Wrong file type', 'Please select a PDF file.', 'error'); return; }
   currentFile = pdfs[0];
+  hideDropzone(dropzone);
   await loadPreviews();
 });
 
 async function loadPreviews() {
-  setStatus(status, 'Loading PDF preview…');
+  showToast('Loading preview…', 'Rendering page thumbnails.', 'info', 2500);
   try {
     const buf = await currentFile.arrayBuffer();
     pageBuffers = buf;
     const pdfjsDoc = await pdfjsLib.getDocument({ data: buf.slice(0) }).promise;
     totalPages = pdfjsDoc.numPages;
-    pageCount.textContent = totalPages + ' page' + (totalPages !== 1 ? 's' : '');
+    const pageCountEl = document.getElementById('pageCount');
+    if (pageCountEl) pageCountEl.textContent = totalPages + ' page' + (totalPages !== 1 ? 's' : '');
     fileList.classList.add('active');
-    previewGrid.innerHTML = '';
+    const pg = document.getElementById('previewGrid');
+    pg.innerHTML = '';
     selected.clear();
 
     for (let i = 1; i <= totalPages; i++) {
@@ -176,7 +221,7 @@ async function loadPreviews() {
         else { selected.add(p); item.classList.add('selected'); }
         updateActionState();
       });
-      previewGrid.appendChild(item);
+      pg.appendChild(item);
 
       const page = await pdfjsDoc.getPage(i);
       const viewport = page.getViewport({ scale: 0.4 });
@@ -185,28 +230,32 @@ async function loadPreviews() {
       canvas.height = viewport.height;
       await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
     }
-    setStatus(status, 'Click pages to select them, or switch to "Each page separately" mode.');
     updateActionState();
   } catch (err) {
     console.error(err);
-    setStatus(status, 'Could not load PDF: ' + err.message, 'error');
+    showToast('Could not load PDF', err.message, 'error');
   }
 }
 
-actionBtn.addEventListener('click', async () => {
-  const mode = document.querySelector('input[name="mode"]:checked').value;
-  setButtonLoading(actionBtn, true);
-  setStatus(status, 'Splitting PDF…');
+actionBtn.addEventListener('click', doAction);
+
+async function doAction() {
+  const modeEl = document.querySelector('input[name="mode"]:checked');
+  if (!modeEl) return;
+  const mode = modeEl.value;
+  const btn = document.getElementById('actionBtn');
+  setButtonLoading(btn, true);
   try {
     const srcDoc = await PDFDocument.load(pageBuffers.slice(0), { ignoreEncryption: true });
 
     if (mode === 'select') {
+      if (selected.size === 0) { showToast('Pick some pages', 'Click on page thumbnails to select them.', 'error'); setButtonLoading(btn, false); return; }
       const out = await PDFDocument.create();
       const pages = await out.copyPages(srcDoc, [...selected].sort((a,b) => a-b).map(n => n - 1));
       pages.forEach(p => out.addPage(p));
       const bytes = await out.save();
       downloadBlob(new Blob([bytes], { type: 'application/pdf' }), 'extracted-' + Date.now() + '.pdf');
-      setStatus(status, '✓ Done! ' + selected.size + ' pages extracted.', 'success');
+      showToast(getRandomSuccess('split'), selected.size + ' page' + (selected.size !== 1 ? 's' : '') + ' extracted into a new PDF.', 'success');
     } else {
       const zip = new JSZip();
       for (let i = 0; i < totalPages; i++) {
@@ -218,16 +267,15 @@ actionBtn.addEventListener('click', async () => {
       }
       const blob = await zip.generateAsync({ type: 'blob' });
       downloadBlob(blob, 'split-pdfs-' + Date.now() + '.zip');
-      setStatus(status, '✓ Done! ' + totalPages + ' files in a ZIP.', 'success');
+      showToast(getRandomSuccess('split'), totalPages + ' files in a ZIP.', 'success');
     }
+    showDoneState(fileList, 'Split another PDF', reset);
   } catch (err) {
     console.error(err);
-    setStatus(status, 'Something went wrong: ' + err.message, 'error');
-  } finally {
-    setButtonLoading(actionBtn, false);
-    updateActionState();
+    showToast('Something went wrong', err.message, 'error');
+    setButtonLoading(btn, false);
   }
-});
+}
 </script>
 
 </body>

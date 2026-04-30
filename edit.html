@@ -148,12 +148,96 @@ const numberOptions = document.getElementById('numberOptions');
 
 let currentFile = null;
 
-clearBtn.addEventListener('click', () => {
+const FILELIST_TEMPLATE = `
+  <div class="file-list-head"><h4>File to edit</h4><span id="fileSize"></span></div>
+  <div id="fileItems"></div>
+  <div class="tool-options">
+    <h4>What do you want to add?</h4>
+    <div class="option-row">
+      <label>Action</label>
+      <div class="radio-group">
+        <label class="radio-pill"><input type="radio" name="mode" value="text" checked><span>Text watermark</span></label>
+        <label class="radio-pill"><input type="radio" name="mode" value="numbers"><span>Page numbers</span></label>
+      </div>
+    </div>
+    <div id="textOptions">
+      <div class="option-row">
+        <label>Text</label>
+        <input type="text" id="textInput" value="CONFIDENTIAL" placeholder="Enter text" style="flex: 0 0 60%;">
+      </div>
+      <div class="option-row">
+        <label>Position</label>
+        <div class="radio-group">
+          <label class="radio-pill"><input type="radio" name="position" value="center" checked><span>Center</span></label>
+          <label class="radio-pill"><input type="radio" name="position" value="top"><span>Top</span></label>
+          <label class="radio-pill"><input type="radio" name="position" value="bottom"><span>Bottom</span></label>
+        </div>
+      </div>
+      <div class="option-row">
+        <label>Style</label>
+        <div class="radio-group">
+          <label class="radio-pill"><input type="radio" name="style" value="watermark" checked><span>Diagonal watermark</span></label>
+          <label class="radio-pill"><input type="radio" name="style" value="straight"><span>Straight</span></label>
+        </div>
+      </div>
+      <div class="option-row">
+        <label>Size</label>
+        <input type="number" id="fontSize" value="50" min="8" max="200" style="flex: 0 0 100px;">
+      </div>
+    </div>
+    <div id="numberOptions" style="display:none;">
+      <div class="option-row">
+        <label>Position</label>
+        <div class="radio-group">
+          <label class="radio-pill"><input type="radio" name="numPos" value="bottom-center" checked><span>Bottom center</span></label>
+          <label class="radio-pill"><input type="radio" name="numPos" value="bottom-right"><span>Bottom right</span></label>
+          <label class="radio-pill"><input type="radio" name="numPos" value="top-center"><span>Top center</span></label>
+          <label class="radio-pill"><input type="radio" name="numPos" value="top-right"><span>Top right</span></label>
+        </div>
+      </div>
+      <div class="option-row">
+        <label>Format</label>
+        <select id="numFormat" style="flex: 0 0 200px;">
+          <option value="num">1, 2, 3</option>
+          <option value="page">Page 1</option>
+          <option value="pageOf">Page 1 of 10</option>
+          <option value="dash">- 1 -</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="tool-actions">
+    <button class="btn-clear" id="clearBtn" type="button">Clear</button>
+    <button class="btn-action" id="actionBtn" type="button">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      Apply &amp; download
+    </button>
+  </div>
+  <div class="status" id="status"></div>
+`;
+
+function reset() {
   currentFile = null;
   fileInput.value = '';
   fileList.classList.remove('active');
-  setStatus(status, '');
-});
+  fileList.innerHTML = FILELIST_TEMPLATE;
+  rebindControls();
+  showDropzone(dropzone);
+}
+
+function rebindControls() {
+  document.getElementById('clearBtn').addEventListener('click', reset);
+  document.getElementById('actionBtn').addEventListener('click', doAction);
+  document.querySelectorAll('input[name="mode"]').forEach(r => {
+    r.addEventListener('change', () => {
+      const mode = document.querySelector('input[name="mode"]:checked').value;
+      document.getElementById('textOptions').style.display = mode === 'text' ? '' : 'none';
+      document.getElementById('numberOptions').style.display = mode === 'numbers' ? '' : 'none';
+    });
+  });
+}
+
+clearBtn.addEventListener('click', reset);
 
 document.querySelectorAll('input[name="mode"]').forEach(r => {
   r.addEventListener('change', () => {
@@ -165,18 +249,21 @@ document.querySelectorAll('input[name="mode"]').forEach(r => {
 
 setupDropzone(dropzone, fileInput, newFiles => {
   const pdfs = filterByExtension(newFiles, ['pdf']);
-  if (pdfs.length === 0) { setStatus(status, 'Please select a PDF.', 'error'); return; }
+  if (pdfs.length === 0) { showToast('Wrong file type', 'Please select a PDF.', 'error'); return; }
   currentFile = pdfs[0];
-  fileSize.textContent = formatSize(currentFile.size);
-  fileItems.innerHTML = renderFileItems([currentFile], { reorder: false, removable: false });
+  document.getElementById('fileSize').textContent = formatSize(currentFile.size);
+  document.getElementById('fileItems').innerHTML = renderFileItems([currentFile], { reorder: false, removable: false });
+  hideDropzone(dropzone);
   fileList.classList.add('active');
-  setStatus(status, '');
 });
 
-actionBtn.addEventListener('click', async () => {
+actionBtn.addEventListener('click', doAction);
+
+async function doAction() {
   if (!currentFile) return;
-  setButtonLoading(actionBtn, true);
-  setStatus(status, 'Editing PDF…');
+  const btn = document.getElementById('actionBtn');
+  setButtonLoading(btn, true);
+  showToast('Applying edits…', 'Stamping every page of your PDF.', 'info', 3000);
   try {
     const buf = await currentFile.arrayBuffer();
     const pdfDoc = await PDFDocument.load(buf, { ignoreEncryption: true });
@@ -216,7 +303,7 @@ actionBtn.addEventListener('click', async () => {
         });
       });
     } else {
-      const numPos = document.getElementById('numFormat') ? document.querySelector('input[name="numPos"]:checked').value : 'bottom-center';
+      const numPos = document.querySelector('input[name="numPos"]:checked').value;
       const format = document.getElementById('numFormat').value;
       const total = pages.length;
 
@@ -244,14 +331,14 @@ actionBtn.addEventListener('click', async () => {
     const bytes = await pdfDoc.save();
     const baseName = currentFile.name.replace(/\.pdf$/i, '');
     downloadBlob(new Blob([bytes], { type: 'application/pdf' }), baseName + '-edited.pdf');
-    setStatus(status, '✓ Done! Edited PDF downloaded.', 'success');
+    showToast(getRandomSuccess('edit'), 'Edited PDF downloaded.', 'success');
+    showDoneState(fileList, 'Edit another PDF', reset);
   } catch (err) {
     console.error(err);
-    setStatus(status, 'Something went wrong: ' + err.message, 'error');
-  } finally {
-    setButtonLoading(actionBtn, false);
+    showToast('Something went wrong', err.message, 'error');
+    setButtonLoading(btn, false);
   }
-});
+}
 </script>
 
 </body>

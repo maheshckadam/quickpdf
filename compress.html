@@ -102,23 +102,52 @@ const clearBtn = document.getElementById('clearBtn');
 const status = document.getElementById('status');
 
 let currentFile = null;
+let originalSize = 0;
 
 function reset() {
   currentFile = null;
+  originalSize = 0;
   fileInput.value = '';
   fileList.classList.remove('active');
-  setStatus(status, '');
+  fileList.innerHTML = `
+    <div class="file-list-head"><h4>File to compress</h4><span id="fileSize"></span></div>
+    <div id="fileItems"></div>
+    <div class="tool-options">
+      <h4>Compression level</h4>
+      <div class="option-row">
+        <label>Quality</label>
+        <div class="radio-group">
+          <label class="radio-pill"><input type="radio" name="quality" value="low"><span>Low (smallest)</span></label>
+          <label class="radio-pill"><input type="radio" name="quality" value="medium" checked><span>Medium (recommended)</span></label>
+          <label class="radio-pill"><input type="radio" name="quality" value="high"><span>High (best quality)</span></label>
+        </div>
+      </div>
+    </div>
+    <div class="tool-actions">
+      <button class="btn-clear" id="clearBtn" type="button">Clear</button>
+      <button class="btn-action" id="actionBtn" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Compress &amp; download
+      </button>
+    </div>
+    <div class="status" id="status"></div>
+  `;
+  document.getElementById('clearBtn').addEventListener('click', reset);
+  document.getElementById('actionBtn').addEventListener('click', doAction);
+  showDropzone(dropzone);
 }
+
 clearBtn.addEventListener('click', reset);
 
 setupDropzone(dropzone, fileInput, newFiles => {
   const pdfs = filterByExtension(newFiles, ['pdf']);
-  if (pdfs.length === 0) { setStatus(status, 'Please select a PDF.', 'error'); return; }
+  if (pdfs.length === 0) { showToast('Wrong file type', 'Please select a PDF.', 'error'); return; }
   currentFile = pdfs[0];
-  fileSize.textContent = formatSize(currentFile.size);
-  fileItems.innerHTML = renderFileItems([currentFile], { reorder: false, removable: false });
+  originalSize = currentFile.size;
+  document.getElementById('fileSize').textContent = formatSize(currentFile.size);
+  document.getElementById('fileItems').innerHTML = renderFileItems([currentFile], { reorder: false, removable: false });
+  hideDropzone(dropzone);
   fileList.classList.add('active');
-  setStatus(status, '');
 });
 
 const QUALITY_SETTINGS = {
@@ -127,10 +156,13 @@ const QUALITY_SETTINGS = {
   high:   { scale: 2.0, jpegQuality: 0.85 }
 };
 
-actionBtn.addEventListener('click', async () => {
+actionBtn.addEventListener('click', doAction);
+
+async function doAction() {
   if (!currentFile) return;
-  setButtonLoading(actionBtn, true);
-  setStatus(status, 'Compressing PDF…');
+  const btn = document.getElementById('actionBtn');
+  setButtonLoading(btn, true);
+  showToast('Compressing PDF…', 'This may take a moment for large files.', 'info', 3000);
   try {
     const quality = document.querySelector('input[name="quality"]:checked').value;
     const settings = QUALITY_SETTINGS[quality];
@@ -139,7 +171,6 @@ actionBtn.addEventListener('click', async () => {
 
     let outDoc = null;
     for (let i = 1; i <= pdfDoc.numPages; i++) {
-      setStatus(status, 'Compressing page ' + i + ' of ' + pdfDoc.numPages + '…');
       const page = await pdfDoc.getPage(i);
       const viewport = page.getViewport({ scale: settings.scale });
       const canvas = document.createElement('canvas');
@@ -161,21 +192,21 @@ actionBtn.addEventListener('click', async () => {
     }
 
     const blob = outDoc.output('blob');
-    const reduction = ((1 - blob.size / currentFile.size) * 100).toFixed(0);
+    const reduction = ((1 - blob.size / originalSize) * 100).toFixed(0);
     downloadBlob(blob, 'compressed-' + Date.now() + '.pdf');
 
-    if (blob.size < currentFile.size) {
-      setStatus(status, '✓ Done! Reduced from ' + formatSize(currentFile.size) + ' to ' + formatSize(blob.size) + ' (' + reduction + '% smaller).', 'success');
+    if (blob.size < originalSize) {
+      showToast(getRandomSuccess('compress'), 'From ' + formatSize(originalSize) + ' to ' + formatSize(blob.size) + ' (' + reduction + '% smaller).', 'success');
     } else {
-      setStatus(status, '✓ Done! New size: ' + formatSize(blob.size) + '. Try a lower quality for more compression.', 'success');
+      showToast(getRandomSuccess('compress'), 'New size: ' + formatSize(blob.size) + '. Try lower quality for more compression.', 'success');
     }
+    showDoneState(fileList, 'Compress another PDF', reset);
   } catch (err) {
     console.error(err);
-    setStatus(status, 'Something went wrong: ' + err.message, 'error');
-  } finally {
-    setButtonLoading(actionBtn, false);
+    showToast('Something went wrong', err.message, 'error');
+    setButtonLoading(btn, false);
   }
-});
+}
 </script>
 
 </body>
