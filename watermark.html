@@ -187,9 +187,10 @@ let currentPage = 1;
 let watermarkImageData = null;
 let watermarkImageElement = null;
 
-// Drag and drop on the empty dropzone
+// Click anywhere in dropzone (including the button) opens file picker
 emptyDropzone.addEventListener('click', e => {
-  if (e.target.closest('button, input')) return;
+  // Don't re-trigger if clicking the file input itself
+  if (e.target === fileInput) return;
   fileInput.click();
 });
 fileInput.addEventListener('change', e => {

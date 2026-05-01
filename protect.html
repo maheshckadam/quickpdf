@@ -340,6 +340,38 @@
   gap: 10px;
   align-items: flex-start;
 }
+
+/* Placeholder shown until file uploaded */
+.protect-placeholder {
+  text-align: center;
+  padding: 40px 20px;
+  border: 2px dashed var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+}
+.protect-placeholder .placeholder-icon {
+  width: 56px; height: 56px;
+  margin: 0 auto 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-muted);
+}
+.protect-placeholder h3 {
+  font-family: 'Fraunces', serif;
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.protect-placeholder p {
+  font-size: 13px;
+  color: var(--ink-muted);
+  line-height: 1.5;
+}
 .security-note svg { color: var(--green); flex-shrink: 0; margin-top: 1px; }
 .security-note p {
   font-size: 12px;
@@ -394,33 +426,45 @@
       <h2>Protect PDF</h2>
       <p class="subtitle">Set a password to protect your PDF file</p>
 
-      <div class="password-field">
-        <svg class="lock-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        <input type="password" id="pw1" placeholder="Type password" autocomplete="new-password" />
-        <button type="button" class="eye-toggle" data-target="pw1" aria-label="Show password">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-        </button>
-      </div>
-      <div class="password-strength" id="strengthBar">
-        <div class="password-strength-bar"></div>
-        <div class="password-strength-bar"></div>
-        <div class="password-strength-bar"></div>
-        <div class="password-strength-bar"></div>
+      <!-- Empty state: shown until file uploaded -->
+      <div id="protectPlaceholder" class="protect-placeholder">
+        <div class="placeholder-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h3>Upload a PDF first</h3>
+        <p>Drop or select a PDF on the left to set a password.</p>
       </div>
 
-      <div class="password-field" style="margin-top: 14px;">
-        <svg class="lock-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        <input type="password" id="pw2" placeholder="Repeat password" autocomplete="new-password" />
-        <button type="button" class="eye-toggle" data-target="pw2" aria-label="Show password">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      <!-- Password form: shown after file uploaded -->
+      <div id="protectForm" style="display:none;">
+        <div class="password-field">
+          <svg class="lock-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="pw1" placeholder="Type password" autocomplete="new-password" />
+          <button type="button" class="eye-toggle" data-target="pw1" aria-label="Show password">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="password-strength" id="strengthBar">
+          <div class="password-strength-bar"></div>
+          <div class="password-strength-bar"></div>
+          <div class="password-strength-bar"></div>
+          <div class="password-strength-bar"></div>
+        </div>
+
+        <div class="password-field" style="margin-top: 14px;">
+          <svg class="lock-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="pw2" placeholder="Repeat password" autocomplete="new-password" />
+          <button type="button" class="eye-toggle" data-target="pw2" aria-label="Show password">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="password-hint" id="pwHint"></div>
+
+        <button class="btn-protect" id="protectBtn" type="button" disabled>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Protect PDF
         </button>
       </div>
-      <div class="password-hint" id="pwHint"></div>
-
-      <button class="btn-protect" id="protectBtn" type="button" disabled>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        Protect PDF
-      </button>
 
       <div class="security-note">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -468,7 +512,8 @@ const protectLeft = document.getElementById('protectLeft');
 const protectEmpty = document.getElementById('protectEmpty');
 const thumbGrid = document.getElementById('thumbGrid');
 const fileInput = document.getElementById('fileInput');
-const selectBtn = document.getElementById('selectBtn');
+const protectPlaceholder = document.getElementById('protectPlaceholder');
+const protectForm = document.getElementById('protectForm');
 const pw1 = document.getElementById('pw1');
 const pw2 = document.getElementById('pw2');
 const pwHint = document.getElementById('pwHint');
@@ -477,20 +522,15 @@ const strengthBar = document.getElementById('strengthBar');
 
 let currentFile = null;
 
-selectBtn.addEventListener('click', e => {
-  e.stopPropagation();
+// Single delegated click handler — anywhere in the empty drop area opens picker
+protectLeft.addEventListener('click', e => {
+  if (currentFile) return; // Already have file — clicks should reach buttons
+  if (e.target === fileInput) return;
   fileInput.click();
-});
-fileInput.addEventListener('change', e => {
-  if (e.target.files && e.target.files[0]) loadFile(e.target.files[0]);
 });
 
-// Click anywhere on empty drop area opens file picker
-protectLeft.addEventListener('click', e => {
-  // Only when no file is loaded yet (and click wasn't on a button)
-  if (currentFile) return;
-  if (e.target.closest('button, input')) return;
-  fileInput.click();
+fileInput.addEventListener('change', e => {
+  if (e.target.files && e.target.files[0]) loadFile(e.target.files[0]);
 });
 
 // Drag and drop on the whole left card
@@ -521,6 +561,11 @@ async function loadFile(file) {
   protectEmpty.style.display = 'none';
   thumbGrid.style.display = 'flex';
   protectLeft.classList.add('has-file');
+  // Show password form, hide placeholder
+  protectPlaceholder.style.display = 'none';
+  protectForm.style.display = '';
+  // Auto-focus the password field for quick entry
+  setTimeout(() => pw1.focus(), 100);
   await renderThumbnail(file);
   validate();
 }
@@ -578,6 +623,12 @@ function resetFile() {
   thumbGrid.style.display = 'none';
   protectEmpty.style.display = '';
   protectLeft.classList.remove('has-file');
+  // Hide form, show placeholder again, clear passwords
+  protectForm.style.display = 'none';
+  protectPlaceholder.style.display = '';
+  pw1.value = '';
+  pw2.value = '';
+  strengthBar.className = 'password-strength';
   validate();
 }
 
