@@ -35,7 +35,7 @@
 /* Left side: file area */
 .protect-left {
   background: var(--bg-card);
-  border: 1px solid var(--line);
+  border: 2px dashed var(--line);
   border-radius: var(--radius-lg);
   padding: 40px 32px;
   min-height: 420px;
@@ -45,7 +45,17 @@
   position: relative;
   transition: all .25s ease;
 }
-.protect-left.has-file { display: block; padding-top: 60px; }
+.protect-left:not(.has-file) { cursor: pointer; }
+.protect-left:not(.has-file):hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.protect-left.has-file {
+  display: block;
+  padding-top: 60px;
+  border-style: solid;
+  cursor: default;
+}
 .protect-left.drag-over {
   border-color: var(--accent);
   background: var(--accent-soft);
@@ -346,7 +356,7 @@
     <div class="nav-links">
       <a href="index.html#tools">All tools</a>
       <a href="index.html#how">How it works</a>
-      <a href="index.html" class="btn btn-primary">← Back to home</a>
+      <a href="index.html" class="btn btn-back-home">← Back to home</a>
     </div>
   </div>
 </nav>
@@ -423,6 +433,7 @@
 <footer>
   <div class="footer-inner">
     <div class="footer-brand"><a href="index.html" class="logo"><span class="logo-mark">Q</span>Quickpdf</a><p>The free, fast, private way to work with PDFs.</p></div>
+    <div class="footer-col"><h5>Company</h5><a href="blog.html">Blog</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="#">Contact</a></div>
     <div class="footer-tools-grid">
       <div class="footer-col">
         <h5>Tools</h5>
@@ -445,7 +456,6 @@
         <a href="edit.html">Edit PDF</a>
       </div>
     </div>
-    <div class="footer-col"><h5>Company</h5><a href="blog.html">Blog</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="#">Contact</a></div>
   </div>
   <div class="footer-bottom"><span>© 2026 Quickpdf. Made with care.</span><span>Your files. Your device. Always.</span></div>
 </footer>
@@ -467,9 +477,20 @@ const strengthBar = document.getElementById('strengthBar');
 
 let currentFile = null;
 
-selectBtn.addEventListener('click', () => fileInput.click());
+selectBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  fileInput.click();
+});
 fileInput.addEventListener('change', e => {
   if (e.target.files && e.target.files[0]) loadFile(e.target.files[0]);
+});
+
+// Click anywhere on empty drop area opens file picker
+protectLeft.addEventListener('click', e => {
+  // Only when no file is loaded yet (and click wasn't on a button)
+  if (currentFile) return;
+  if (e.target.closest('button, input')) return;
+  fileInput.click();
 });
 
 // Drag and drop on the whole left card

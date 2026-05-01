@@ -129,7 +129,7 @@
     <div class="nav-links">
       <a href="index.html#tools">All tools</a>
       <a href="index.html#how">How it works</a>
-      <a href="index.html" class="btn btn-primary">← Back to home</a>
+      <a href="index.html" class="btn btn-back-home">← Back to home</a>
     </div>
   </div>
 </nav>
@@ -165,6 +165,7 @@
 <footer>
   <div class="footer-inner">
     <div class="footer-brand"><a href="index.html" class="logo"><span class="logo-mark">Q</span>Quickpdf</a><p>The free, fast, private way to work with PDFs.</p></div>
+    <div class="footer-col"><h5>Company</h5><a href="blog.html">Blog</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="#">Contact</a></div>
     <div class="footer-tools-grid">
       <div class="footer-col">
         <h5>Tools</h5>
@@ -187,7 +188,6 @@
         <a href="edit.html">Edit PDF</a>
       </div>
     </div>
-    <div class="footer-col"><h5>Company</h5><a href="blog.html">Blog</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="#">Contact</a></div>
   </div>
   <div class="footer-bottom"><span>© 2026 Quickpdf. Made with care.</span><span>Your files. Your device. Always.</span></div>
 </footer>
@@ -297,8 +297,17 @@ let summarizerPipeline = null;
 
 async function loadSummarizer(progressCallback) {
   if (summarizerPipeline) return summarizerPipeline;
+  // Use Xenova's transformers.js — runs ML models entirely in the browser via WebAssembly
   const { pipeline, env } = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2');
+
+  // CRITICAL: Tell ONNX Runtime where to find the WASM backend files.
+  // Without this, Transformers.js fails with "no available backend found".
   env.allowLocalModels = false;
+  env.useBrowserCache = true;
+  env.backends.onnx.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/';
+  // Disable threading (single-threaded WASM works in all browsers without SharedArrayBuffer headers)
+  env.backends.onnx.wasm.numThreads = 1;
+
   summarizerPipeline = await pipeline('summarization', 'Xenova/distilbart-cnn-6-6', {
     progress_callback: data => {
       if (data.status === 'progress' && data.progress != null) {

@@ -116,6 +116,17 @@ nav {
 }
 .btn-primary { background: var(--ink); color: var(--bg); }
 .btn-primary:hover { background: #2a2a26; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn-back-home {
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 2px 8px rgba(255,87,51,.25);
+}
+.btn-back-home:hover {
+  background: var(--accent-deep);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(255,87,51,.35);
+  color: white;
+}
 
 /* ============ TOOL PAGE LAYOUT ============ */
 .tool-page {
@@ -911,14 +922,13 @@ footer {
   max-width: 1280px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  grid-template-columns: 1.6fr 1fr 2fr;
   gap: 48px;
 }
 .footer-tools-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 32px;
-  grid-column: span 2;
 }
 .footer-brand .logo { margin-bottom: 16px; }
 .footer-brand p {
@@ -958,14 +968,201 @@ footer {
 }
 
 @media (max-width: 768px) {
-  .footer-inner { grid-template-columns: 1fr 1fr; }
-  .footer-tools-grid { grid-column: span 2; grid-template-columns: 1fr 1fr; gap: 24px; }
-  .nav-links a:not(.btn-primary) { display: none; }
+  .footer-inner { grid-template-columns: 1fr 1fr; gap: 32px; }
+  .footer-tools-grid { grid-template-columns: 1fr 1fr; gap: 24px; grid-column: span 2; }
+  .nav-links a:not(.btn-primary):not(.btn-back-home) { display: none; }
   .tool-page { padding: 40px 20px 60px; }
   .dropzone { padding: 40px 20px; }
 }
 
-/* ============ STATIC PAGE STYLES (Privacy, Terms, Blog) ============ */
+/* ============ SPLIT PREVIEW LAYOUT (Watermark / Edit / Sign) ============ */
+.preview-layout {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 32px;
+  margin-top: 32px;
+  align-items: start;
+}
+@media (max-width: 880px) {
+  .preview-layout { grid-template-columns: 1fr; }
+}
+
+.preview-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  position: sticky;
+  top: 100px;
+}
+.preview-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.preview-panel-head h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.preview-panel-head h4::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+.preview-panel-head .page-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.preview-panel-head .page-nav button {
+  width: 28px; height: 28px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  border-radius: 7px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-soft);
+  transition: all .15s ease;
+}
+.preview-panel-head .page-nav button:hover:not(:disabled) { border-color: var(--ink); color: var(--ink); }
+.preview-panel-head .page-nav button:disabled { opacity: .3; cursor: not-allowed; }
+.preview-panel-head .page-nav span {
+  font-size: 12px;
+  color: var(--ink-muted);
+  min-width: 60px;
+  text-align: center;
+}
+
+.preview-canvas-wrap {
+  position: relative;
+  background: var(--bg);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--line-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 480px;
+}
+.preview-canvas-wrap canvas {
+  max-width: 100%;
+  max-height: 600px;
+  display: block;
+  object-fit: contain;
+}
+.preview-canvas-wrap .empty-preview {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--ink-muted);
+}
+.preview-canvas-wrap .empty-preview .icon {
+  width: 56px; height: 56px;
+  margin: 0 auto 16px;
+  background: var(--bg-grey);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-muted);
+}
+.preview-canvas-wrap .empty-preview h3 {
+  font-family: 'Fraunces', serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+.preview-canvas-wrap .empty-preview p {
+  font-size: 13px;
+  color: var(--ink-muted);
+}
+
+/* Wrap that contains canvas + overlay */
+.preview-stage {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+.preview-overlay {
+  position: absolute;
+  pointer-events: none;
+}
+.preview-overlay.draggable {
+  pointer-events: auto;
+  cursor: grab;
+}
+.preview-overlay.draggable:active { cursor: grabbing; }
+
+.options-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+.options-panel h4 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--ink);
+}
+.options-panel .tool-options { padding: 0; border: none; background: transparent; margin-top: 0; }
+
+/* Empty state shown when no file chosen yet */
+.preview-dropzone {
+  background: var(--bg-card);
+  border: 2px dashed var(--line);
+  border-radius: var(--radius-lg);
+  padding: 60px 32px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .25s ease;
+  min-height: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.preview-dropzone:hover, .preview-dropzone.drag-over {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.preview-dropzone .dropzone-icon {
+  width: 72px; height: 72px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+.preview-dropzone h3 {
+  font-family: 'Fraunces', serif;
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+.preview-dropzone p { color: var(--ink-soft); font-size: 15px; margin-bottom: 24px; }
+
+/* Tighten right-panel options for split view */
+.options-panel .tool-actions {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line-soft);
+}
 .static-page {
   max-width: 760px;
   margin: 0 auto;

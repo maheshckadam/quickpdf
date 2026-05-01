@@ -4,12 +4,16 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Sign PDF — Quickpdf</title>
-<meta name="description" content="Draw your signature and add it to any PDF. Free and private." />
+<meta name="description" content="Draw a signature and see it placed on your PDF in real-time. Free and private." />
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ff5733'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='sans-serif' font-weight='700' font-size='18' fill='white' font-style='italic'%3EQ%3C/text%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/styles.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+</script>
 </head>
 <body>
 
@@ -19,12 +23,12 @@
     <div class="nav-links">
       <a href="index.html#tools">All tools</a>
       <a href="index.html#how">How it works</a>
-      <a href="index.html" class="btn btn-primary">← Back to home</a>
+      <a href="index.html" class="btn btn-back-home">← Back to home</a>
     </div>
   </div>
 </nav>
 
-<main class="tool-page">
+<main class="tool-page" style="max-width: 1200px;">
   <div class="tool-breadcrumb">
     <a href="index.html">Home</a>
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
@@ -36,10 +40,10 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 19l4-4M3 19l5 1M19 5l-2-2-9 9 2 2 9-9zM12 7l3 3"/></svg>
     </div>
     <h1>Sign <em>a PDF.</em></h1>
-    <p>Draw your signature with mouse or touch, then place it on the page of your choice.</p>
+    <p>Draw your signature with mouse or touch, then <strong>see it placed on the page in real-time</strong>.</p>
   </div>
 
-  <div id="dropzone" class="dropzone fade-up delay-1">
+  <div id="emptyDropzone" class="preview-dropzone fade-up delay-1">
     <div class="dropzone-icon">
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M12 18v-6M9 15l3-3 3 3"/></svg>
     </div>
@@ -49,12 +53,76 @@
     <input type="file" id="fileInput" accept="application/pdf" style="display:none;" />
   </div>
 
-  <div class="file-list" id="fileList"></div>
+  <div class="preview-layout" id="previewLayout" style="display:none;">
+    <div class="preview-panel">
+      <div class="preview-panel-head">
+        <h4>Live preview</h4>
+        <div class="page-nav">
+          <button id="prevPageBtn" type="button" title="Previous page">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <span id="pageLabel">Page 1 of 1</span>
+          <button id="nextPageBtn" type="button" title="Next page">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="preview-canvas-wrap">
+        <div class="preview-stage">
+          <canvas id="previewCanvas"></canvas>
+          <div id="previewOverlay" class="preview-overlay"></div>
+        </div>
+      </div>
+      <p style="font-size: 12px; color: var(--ink-muted); margin-top: 12px; text-align: center;">💡 Tip: Use the Page navigation to pick which page to sign on</p>
+    </div>
+
+    <aside class="options-panel">
+      <h4>File</h4>
+      <div id="fileItems" style="margin-bottom: 20px;"></div>
+
+      <h4>1. Draw your signature</h4>
+      <div class="signature-pad-wrap">
+        <canvas id="sigPad"></canvas>
+        <div class="signature-pad-actions">
+          <p>Sign with your mouse or finger</p>
+          <button class="btn-mini" id="clearSigBtn" type="button">Clear</button>
+        </div>
+      </div>
+
+      <h4 style="margin-top: 24px;">2. Position</h4>
+      <div class="tool-options">
+        <div class="option-row">
+          <label>Where</label>
+          <div class="radio-group">
+            <label class="radio-pill"><input type="radio" name="sigPos" value="bottom-right" checked><span>Bottom right</span></label>
+            <label class="radio-pill"><input type="radio" name="sigPos" value="bottom-left"><span>Bottom left</span></label>
+            <label class="radio-pill"><input type="radio" name="sigPos" value="bottom-center"><span>Bottom center</span></label>
+            <label class="radio-pill"><input type="radio" name="sigPos" value="top-right"><span>Top right</span></label>
+          </div>
+        </div>
+        <div class="option-row">
+          <label>Size</label>
+          <input type="range" id="sigSize" min="80" max="300" value="180" style="flex:1;">
+          <span id="sigSizeVal" style="font-size:13px; color: var(--ink-muted); min-width:60px;">180 px</span>
+        </div>
+        <p style="font-size: 12px; color: var(--ink-muted); margin-top: 8px;">Signature will be added to <strong id="targetPageLabel">page 1</strong>. Use ◀ ▶ above to change.</p>
+      </div>
+
+      <div class="tool-actions">
+        <button class="btn-clear" id="clearBtn" type="button">Clear all</button>
+        <button class="btn-action" id="actionBtn" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Sign &amp; download
+        </button>
+      </div>
+    </aside>
+  </div>
 </main>
 
 <footer>
   <div class="footer-inner">
     <div class="footer-brand"><a href="index.html" class="logo"><span class="logo-mark">Q</span>Quickpdf</a><p>The free, fast, private way to work with PDFs.</p></div>
+    <div class="footer-col"><h5>Company</h5><a href="blog.html">Blog</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="#">Contact</a></div>
     <div class="footer-tools-grid">
       <div class="footer-col">
         <h5>Tools</h5>
@@ -77,90 +145,118 @@
         <a href="edit.html">Edit PDF</a>
       </div>
     </div>
-    <div class="footer-col"><h5>Company</h5><a href="blog.html">Blog</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="#">Contact</a></div>
   </div>
   <div class="footer-bottom"><span>© 2026 Quickpdf. Made with care.</span><span>Your files. Your device. Always.</span></div>
 </footer>
 
 <script src="assets/common.js"></script>
 <script>
-const { PDFDocument, StandardFonts } = PDFLib;
-const dropzone = document.getElementById('dropzone');
+const { PDFDocument } = PDFLib;
+const emptyDropzone = document.getElementById('emptyDropzone');
 const fileInput = document.getElementById('fileInput');
-const fileList = document.getElementById('fileList');
+const previewLayout = document.getElementById('previewLayout');
+const previewCanvas = document.getElementById('previewCanvas');
+const previewOverlay = document.getElementById('previewOverlay');
+const pageLabel = document.getElementById('pageLabel');
+const targetPageLabel = document.getElementById('targetPageLabel');
+const prevPageBtn = document.getElementById('prevPageBtn');
+const nextPageBtn = document.getElementById('nextPageBtn');
+
 let currentFile = null;
+let pdfjsDoc = null;
 let totalPages = 0;
+let currentPage = 1;
 let signaturePadHasSignature = false;
+let signatureDataUrl = null;
 
-const FILELIST_TEMPLATE = `
-  <div class="file-list-head"><h4>File to sign</h4><span id="fileSize"></span></div>
-  <div id="fileItems"></div>
-  <div class="tool-options">
-    <h4>1. Draw your signature</h4>
-    <div class="signature-pad-wrap">
-      <canvas id="sigPad"></canvas>
-      <div class="signature-pad-actions">
-        <p>Sign above using your mouse or finger</p>
-        <button class="btn-mini" id="clearSigBtn" type="button">Clear signature</button>
-      </div>
-    </div>
+emptyDropzone.addEventListener('click', e => {
+  if (e.target.closest('button, input')) return;
+  fileInput.click();
+});
+fileInput.addEventListener('change', e => {
+  if (e.target.files && e.target.files[0]) loadFile(e.target.files[0]);
+});
+['dragenter', 'dragover'].forEach(evt => {
+  emptyDropzone.addEventListener(evt, e => { e.preventDefault(); emptyDropzone.classList.add('drag-over'); });
+});
+['dragleave', 'drop'].forEach(evt => {
+  emptyDropzone.addEventListener(evt, e => { e.preventDefault(); emptyDropzone.classList.remove('drag-over'); });
+});
+emptyDropzone.addEventListener('drop', e => {
+  if (e.dataTransfer.files && e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+});
 
-    <h4 style="margin-top: 24px;">2. Where to place it</h4>
-    <div class="option-row">
-      <label>Page number</label>
-      <input type="number" id="sigPage" value="1" min="1" style="flex: 0 0 100px;">
-      <span style="font-size:13px; color: var(--ink-muted);" id="totalPagesLabel">of —</span>
-    </div>
-    <div class="option-row">
-      <label>Position</label>
-      <div class="radio-group">
-        <label class="radio-pill"><input type="radio" name="sigPos" value="bottom-right" checked><span>Bottom right</span></label>
-        <label class="radio-pill"><input type="radio" name="sigPos" value="bottom-left"><span>Bottom left</span></label>
-        <label class="radio-pill"><input type="radio" name="sigPos" value="bottom-center"><span>Bottom center</span></label>
-        <label class="radio-pill"><input type="radio" name="sigPos" value="top-right"><span>Top right</span></label>
-      </div>
-    </div>
-    <div class="option-row">
-      <label>Size</label>
-      <input type="range" id="sigSize" min="80" max="300" value="180" style="flex:1;">
-      <span id="sigSizeVal" style="font-size:13px; color: var(--ink-muted); min-width:60px;">180 px</span>
-    </div>
-  </div>
-  <div class="tool-actions">
-    <button class="btn-clear" id="clearBtn" type="button">Clear all</button>
-    <button class="btn-action" id="actionBtn" type="button">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-      Sign &amp; download
-    </button>
-  </div>
-  <div class="status" id="status"></div>
-`;
-
-function reset() {
-  currentFile = null;
-  totalPages = 0;
-  signaturePadHasSignature = false;
-  fileInput.value = '';
-  fileList.classList.remove('active');
-  fileList.innerHTML = FILELIST_TEMPLATE;
-  rebindControls();
-  showDropzone(dropzone);
+async function loadFile(file) {
+  if (!file.name.toLowerCase().endsWith('.pdf')) {
+    showToast('Wrong file type', 'Please pick a PDF.', 'error'); return;
+  }
+  currentFile = file;
+  showToast('Loading…', 'Generating live preview.', 'info', 2000);
+  try {
+    const buf = await file.arrayBuffer();
+    pdfjsDoc = await pdfjsLib.getDocument({ data: buf.slice(0) }).promise;
+    totalPages = pdfjsDoc.numPages;
+    currentPage = 1;
+    emptyDropzone.style.display = 'none';
+    previewLayout.style.display = 'grid';
+    document.getElementById('fileItems').innerHTML = renderFileItems([file], { reorder: false, removable: false });
+    await renderPreview();
+    bindControls();
+    setupSignaturePad();
+  } catch (err) {
+    showToast('Could not load PDF', err.message, 'error');
+  }
 }
 
-function rebindControls() {
-  document.getElementById('clearBtn').addEventListener('click', reset);
-  document.getElementById('actionBtn').addEventListener('click', doAction);
-  document.getElementById('clearSigBtn').addEventListener('click', clearSignature);
-  document.getElementById('sigSize').addEventListener('input', e => {
-    document.getElementById('sigSizeVal').textContent = e.target.value + ' px';
-  });
-  setupSignaturePad();
+async function renderPreview() {
+  if (!pdfjsDoc) return;
+  pageLabel.textContent = `Page ${currentPage} of ${totalPages}`;
+  if (targetPageLabel) targetPageLabel.textContent = `page ${currentPage}`;
+  prevPageBtn.disabled = currentPage <= 1;
+  nextPageBtn.disabled = currentPage >= totalPages;
+
+  const page = await pdfjsDoc.getPage(currentPage);
+  const containerWidth = previewCanvas.parentElement.parentElement.clientWidth - 16;
+  const baseViewport = page.getViewport({ scale: 1 });
+  const scale = Math.min(containerWidth / baseViewport.width, 600 / baseViewport.height, 2);
+  const viewport = page.getViewport({ scale });
+  previewCanvas.width = viewport.width;
+  previewCanvas.height = viewport.height;
+  previewCanvas.style.width = viewport.width + 'px';
+  previewCanvas.style.height = viewport.height + 'px';
+  previewOverlay.style.width = viewport.width + 'px';
+  previewOverlay.style.height = viewport.height + 'px';
+  previewOverlay.style.top = '0';
+  previewOverlay.style.left = '0';
+  await page.render({ canvasContext: previewCanvas.getContext('2d'), viewport }).promise;
+  updateOverlay();
+}
+
+function updateOverlay() {
+  if (!signatureDataUrl) {
+    previewOverlay.innerHTML = `<div style="position: absolute; bottom: 24px; right: 24px; padding: 16px 22px; background: rgba(255,255,255,.95); border: 2px dashed #ec4899; border-radius: 10px; font-size: 13px; color: #831843; pointer-events: none; max-width: 220px; text-align: center;">✍️ Draw your signature on the right to see it here</div>`;
+    return;
+  }
+  const W = previewCanvas.width;
+  const H = previewCanvas.height;
+  const previewScale = H / 792;
+  const sigPos = document.querySelector('input[name="sigPos"]:checked').value;
+  const targetWidth = parseInt(document.getElementById('sigSize').value, 10);
+  const sigW = targetWidth * previewScale;
+
+  let css = '';
+  const margin = 30 * previewScale;
+  if (sigPos.startsWith('bottom')) css += `bottom: ${margin}px;`;
+  else css += `top: ${margin}px;`;
+  if (sigPos.endsWith('right')) css += ` right: ${margin}px;`;
+  else if (sigPos.endsWith('left')) css += ` left: ${margin}px;`;
+  else css += ` left: 50%; transform: translateX(-50%);`;
+
+  previewOverlay.innerHTML = `<img src="${signatureDataUrl}" style="position: absolute; ${css} width: ${sigW}px; height: auto; pointer-events: none;" />`;
 }
 
 function setupSignaturePad() {
   const canvas = document.getElementById('sigPad');
-  if (!canvas) return;
-  // Set canvas size with device pixel ratio for crisp drawing
   const rect = canvas.getBoundingClientRect();
   const ratio = window.devicePixelRatio || 1;
   canvas.width = (rect.width || 600) * ratio;
@@ -196,8 +292,13 @@ function setupSignaturePad() {
     ctx.lineTo(x, y);
     ctx.stroke();
     lastX = x; lastY = y;
+    // Update preview live
+    updateLivePreview();
   }
-  function end() { drawing = false; }
+  function end() {
+    drawing = false;
+    updateLivePreview();
+  }
   canvas.addEventListener('mousedown', start);
   canvas.addEventListener('mousemove', move);
   canvas.addEventListener('mouseup', end);
@@ -207,49 +308,59 @@ function setupSignaturePad() {
   canvas.addEventListener('touchend', end);
 }
 
+function updateLivePreview() {
+  if (!signaturePadHasSignature) return;
+  const canvas = document.getElementById('sigPad');
+  const trimmed = trimCanvas(canvas);
+  signatureDataUrl = trimmed.toDataURL('image/png');
+  updateOverlay();
+}
+
 function clearSignature() {
   const canvas = document.getElementById('sigPad');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   signaturePadHasSignature = false;
+  signatureDataUrl = null;
+  updateOverlay();
 }
 
-reset();
+function bindControls() {
+  document.getElementById('clearSigBtn').addEventListener('click', clearSignature);
+  document.getElementById('sigSize').addEventListener('input', e => {
+    document.getElementById('sigSizeVal').textContent = e.target.value + ' px';
+    updateOverlay();
+  });
+  document.querySelectorAll('input[name="sigPos"]').forEach(r => r.addEventListener('change', updateOverlay));
 
-setupDropzone(dropzone, fileInput, async newFiles => {
-  const pdfs = filterByExtension(newFiles, ['pdf']);
-  if (pdfs.length === 0) { showToast('Wrong file type', 'Please select a PDF.', 'error'); return; }
-  currentFile = pdfs[0];
-  document.getElementById('fileSize').textContent = formatSize(currentFile.size);
-  document.getElementById('fileItems').innerHTML = renderFileItems([currentFile], { reorder: false, removable: false });
-  hideDropzone(dropzone);
-  fileList.classList.add('active');
+  prevPageBtn.addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderPreview(); } });
+  nextPageBtn.addEventListener('click', () => { if (currentPage < totalPages) { currentPage++; renderPreview(); } });
 
-  // Get total page count
-  try {
-    const buf = await currentFile.arrayBuffer();
-    const doc = await PDFDocument.load(buf, { ignoreEncryption: true });
-    totalPages = doc.getPageCount();
-    document.getElementById('totalPagesLabel').textContent = 'of ' + totalPages;
-    document.getElementById('sigPage').max = totalPages;
-  } catch (err) {
-    showToast('Could not read PDF', err.message, 'error');
-  }
-});
+  document.getElementById('clearBtn').addEventListener('click', reset);
+  document.getElementById('actionBtn').addEventListener('click', doAction);
+}
+
+function reset() {
+  currentFile = null;
+  pdfjsDoc = null;
+  signaturePadHasSignature = false;
+  signatureDataUrl = null;
+  fileInput.value = '';
+  emptyDropzone.style.display = '';
+  previewLayout.style.display = 'none';
+}
 
 async function doAction() {
   if (!currentFile) return;
   if (!signaturePadHasSignature) {
-    showToast('Sign first', 'Please draw your signature in the box above.', 'error');
+    showToast('Sign first', 'Please draw your signature in the box on the right.', 'error');
     return;
   }
   const btn = document.getElementById('actionBtn');
   setButtonLoading(btn, true);
-
   try {
     const sigCanvas = document.getElementById('sigPad');
-    // Trim transparent area for cleaner placement
     const trimmed = trimCanvas(sigCanvas);
     const sigDataUrl = trimmed.toDataURL('image/png');
     const sigBytes = await fetch(sigDataUrl).then(r => r.arrayBuffer());
@@ -258,13 +369,12 @@ async function doAction() {
     const pdfDoc = await PDFDocument.load(buf, { ignoreEncryption: true });
     const sigImg = await pdfDoc.embedPng(sigBytes);
 
-    const pageNum = parseInt(document.getElementById('sigPage').value, 10) || 1;
     const position = document.querySelector('input[name="sigPos"]:checked').value;
     const targetWidth = parseInt(document.getElementById('sigSize').value, 10);
     const dims = sigImg.scale(targetWidth / sigImg.width);
 
     const pages = pdfDoc.getPages();
-    const page = pages[Math.min(Math.max(0, pageNum - 1), pages.length - 1)];
+    const page = pages[Math.min(Math.max(0, currentPage - 1), pages.length - 1)];
     const { width, height } = page.getSize();
 
     let x, y;
@@ -280,16 +390,15 @@ async function doAction() {
     const bytes = await pdfDoc.save();
     const baseName = currentFile.name.replace(/\.pdf$/i, '');
     downloadBlob(new Blob([bytes], { type: 'application/pdf' }), baseName + '-signed.pdf');
-    showToast(getRandomSuccess('sign'), 'Signature placed on page ' + pageNum + '.', 'success');
-    showDoneState(fileList, 'Sign another PDF', reset);
+    showToast(getRandomSuccess('sign'), 'Signature placed on page ' + currentPage + '.', 'success');
   } catch (err) {
     console.error(err);
     showToast('Something went wrong', err.message, 'error');
+  } finally {
     setButtonLoading(btn, false);
   }
 }
 
-// Trim transparent edges from canvas for cleaner signature
 function trimCanvas(c) {
   const ctx = c.getContext('2d');
   const { width: w, height: h } = c;
