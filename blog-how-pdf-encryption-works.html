@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>How PDF encryption actually works (and why most "protected" PDFs aren't) — Quickpdf Blog</title>
+<meta name="description" content="A friendly walk through PDF passwords, owner vs user passwords, and why your "secured" PDF might not be as secure as you think." />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ff5733'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='sans-serif' font-weight='700' font-size='18' fill='white' font-style='italic'%3EQ%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo"><span class="logo-mark">Q</span>Quickpdf</a>
+    <div class="nav-links">
+      <a href="index.html#tools">All tools</a>
+      <a href="blog.html">Blog</a>
+      <a href="index.html" class="btn btn-primary">← Back to home</a>
+    </div>
+  </div>
+</nav>
+
+<main class="static-page blog-post">
+  <a href="blog.html" class="back-to-blog">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    Back to blog
+  </a>
+  <span class="post-tag blog-tag-tips">Privacy & Tips</span>
+  <h1>How PDF encryption actually works (and why most "protected" PDFs aren't)</h1>
+  <p class="post-meta">April 28, 2026 · 6 min read</p>
+
+  <p>If you've ever clicked "Protect PDF" in Adobe Acrobat or some random online tool, you've used PDF encryption. But there's a lot more going on under the hood than most people realize — and the difference matters when you're sharing sensitive documents.</p>
+
+  <h2>Two passwords, very different jobs</h2>
+  <p>PDF supports two distinct types of passwords, and confusing them is the #1 source of "I thought this was protected!" mistakes.</p>
+
+  <h3>The User Password (open password)</h3>
+  <p>This is the one you'd expect: without it, the PDF won't open at all. Adobe Reader, Chrome, Preview — they'll all show you a password prompt and refuse to display anything until you type it correctly.</p>
+  <p>This is genuine cryptographic protection. The PDF's contents are encrypted with a key derived from your password, and there's no way to view them without it. If someone forgets the password, the document is effectively gone.</p>
+
+  <h3>The Owner Password (permissions password)</h3>
+  <p>This is the sneaky one. An owner password doesn't prevent the PDF from opening — instead, it restricts what users can do with it (printing, copying text, editing). The PDF opens normally for anyone, but supposedly enforces these restrictions.</p>
+  <p>Here's the problem: those restrictions are <strong>honor-based</strong>. They live in the PDF's metadata, and PDF readers <em>choose</em> to respect them. Most readers do, but free tools — including ours — can ignore the owner password entirely and open the PDF as if no restrictions existed. This isn't a hack. It's how the PDF spec is designed to work.</p>
+
+  <blockquote>If you only set an owner password but no user password, your "protected" PDF is fully readable to anyone with a tool that ignores PDF permissions. Which is most of them.</blockquote>
+
+  <h2>The encryption itself</h2>
+  <p>PDFs support several encryption algorithms, evolving over time:</p>
+  <ul>
+    <li><strong>RC4 40-bit</strong> — the original. Cryptographically broken since the 2000s. Avoid.</li>
+    <li><strong>RC4 128-bit</strong> — much stronger, still widely supported, fine for casual privacy.</li>
+    <li><strong>AES 128-bit</strong> — modern, secure, supported by most readers since Adobe Reader 7.</li>
+    <li><strong>AES 256-bit</strong> — the gold standard, used in PDF 2.0. Strongest available.</li>
+  </ul>
+  <p>For 99% of personal use cases, RC4 128-bit or AES 128-bit is more than enough. AES 256-bit matters if you're protecting something a determined attacker would spend computing power on (legal documents, trade secrets, that kind of thing).</p>
+
+  <h2>What encryption does and doesn't protect</h2>
+  <p>Encryption protects the <em>content</em> of the PDF — text, images, embedded fonts. It does not protect:</p>
+  <ul>
+    <li><strong>Metadata.</strong> Title, author, creation date, and similar fields are usually still visible.</li>
+    <li><strong>The fact that the PDF exists.</strong> Anyone with the file knows you have a PDF; they just can't read it.</li>
+    <li><strong>Against a bad password.</strong> A 4-letter password can be cracked in seconds even with strong encryption.</li>
+  </ul>
+
+  <h2>Choosing a good PDF password</h2>
+  <p>Length matters more than complexity. A 16-character passphrase like "purple-toaster-mountain-jazz" is far stronger than "P@ss123!" and easier to remember. Avoid:</p>
+  <ul>
+    <li>Names, birthdays, or anything in your social media profile</li>
+    <li>Common words or phrases</li>
+    <li>Patterns like "qwerty" or "abc123"</li>
+  </ul>
+  <p>And critically: <strong>store the password somewhere</strong>. Encrypted PDFs have no recovery. Forget the password and the document is gone forever.</p>
+
+  <h2>Bottom line</h2>
+  <p>If you want a PDF that requires a password to open, set a <em>user password</em> and use AES 128-bit or higher. If you only want to "discourage" copying or printing, an owner password is fine — but don't mistake it for actual security.</p>
+
+  <div class="post-cta">
+    <h4>Try it yourself</h4>
+    <p>You can use this tool right now in your browser — free and private.</p>
+    <a href="protect.html" class="btn-cta">Try Protect PDF <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand"><a href="index.html" class="logo"><span class="logo-mark">Q</span>Quickpdf</a><p>The free, fast, private way to work with PDFs.</p></div>
+    <div class="footer-tools-grid">
+      <div class="footer-col">
+        <h5>Tools</h5>
+        <a href="ai-summarize.html">AI Summarizer</a>
+        <a href="merge.html">Merge PDF</a>
+        <a href="split.html">Split PDF</a>
+        <a href="compress.html">Compress PDF</a>
+        <a href="organize.html">Organize PDF</a>
+        <a href="watermark.html">Watermark PDF</a>
+        <a href="sign.html">Sign PDF</a>
+      </div>
+      <div class="footer-col">
+        <h5>&nbsp;</h5>
+        <a href="unlock.html">Unlock PDF</a>
+        <a href="protect.html">Protect PDF</a>
+        <a href="ocr.html">OCR PDF</a>
+        <a href="pdf-to-word.html">PDF to Word</a>
+        <a href="word-to-pdf.html">Word to PDF</a>
+        <a href="pdf-to-jpg.html">PDF to JPG</a>
+        <a href="edit.html">Edit PDF</a>
+      </div>
+    </div>
+    <div class="footer-col"><h5>Company</h5><a href="blog.html">Blog</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="#">Contact</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Quickpdf. Made with care.</span><span>Your files. Your device. Always.</span></div>
+</footer>
+
+</body>
+</html>

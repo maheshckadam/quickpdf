@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Why I built Quickpdf — a free, private alternative to bloated PDF sites — Quickpdf Blog</title>
+<meta name="description" content="A short story about getting frustrated with iLovePDF's upgrade prompts and deciding to build something simpler. And free. Forever." />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ff5733'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='sans-serif' font-weight='700' font-size='18' fill='white' font-style='italic'%3EQ%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo"><span class="logo-mark">Q</span>Quickpdf</a>
+    <div class="nav-links">
+      <a href="index.html#tools">All tools</a>
+      <a href="blog.html">Blog</a>
+      <a href="index.html" class="btn btn-primary">← Back to home</a>
+    </div>
+  </div>
+</nav>
+
+<main class="static-page blog-post">
+  <a href="blog.html" class="back-to-blog">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    Back to blog
+  </a>
+  <span class="post-tag blog-tag-news">News</span>
+  <h1>Why I built Quickpdf — a free, private alternative to bloated PDF sites</h1>
+  <p class="post-meta">April 1, 2026 · 4 min read</p>
+
+  <p>I needed to merge three PDFs. I went to iLovePDF, did the merge, and started downloading. Then a popup appeared offering me Premium for $7.99/month. I clicked away. Another popup asked me to sign up. I clicked away again. Eventually the file downloaded.</p>
+  <p>I closed the tab annoyed, and thought: this isn't a hard task. Combining PDFs is a 50-line JavaScript program. Why is the experience like buying a timeshare?</p>
+
+  <h2>The state of online PDF tools</h2>
+  <p>Most "free PDF tool" websites follow a familiar pattern:</p>
+  <ul>
+    <li>Upload your file to their server (where it sits on disk for some retention window)</li>
+    <li>Show you ads, popups, and tracking pixels while it processes</li>
+    <li>Daily limits on usage to push you toward a paid tier</li>
+    <li>Watermarks on output unless you upgrade</li>
+    <li>Email collection in exchange for "extra" features</li>
+  </ul>
+  <p>None of this is necessary for the task at hand. Browsers can do PDF manipulation locally. They have for years. The "send your file to a server" model is a business choice, not a technical requirement.</p>
+
+  <h2>What changed</h2>
+  <p>The JavaScript ecosystem got really good. Libraries like <code>pdf-lib</code> (PDF reading and writing), <code>pdf.js</code> (PDF rendering, by Mozilla), <code>Tesseract.js</code> (OCR), and <code>Transformers.js</code> (in-browser AI) make it possible to build a full suite of PDF tools that never need a server. Static HTML and JavaScript can do the work that used to require a backend with file storage and processing queues.</p>
+  <p>This isn't speculative — every major PDF feature (merge, split, compress, watermark, sign, OCR, AI summarization) now has a robust JS implementation.</p>
+
+  <h2>So I built Quickpdf</h2>
+  <p>Over a few weekends, I built and shipped Quickpdf. The goals were simple:</p>
+  <ul>
+    <li><strong>Free forever, no tiers, no upgrade prompts</strong></li>
+    <li><strong>No signup, no email collection</strong></li>
+    <li><strong>No file uploads — everything in the browser</strong></li>
+    <li><strong>No watermarks on output</strong></li>
+    <li><strong>No tracking, no ads</strong></li>
+    <li><strong>No file size limits beyond what your browser can handle</strong></li>
+  </ul>
+  <p>The whole site is static HTML, CSS, and JS. It's hosted on Vercel's free hobby tier. Bandwidth costs me roughly nothing because Vercel's CDN absorbs it.</p>
+
+  <h2>"How is this sustainable?"</h2>
+  <p>Honestly: it doesn't need to be sustainable in the traditional sense. The marginal cost of one more user using a static site on a CDN is essentially zero. There are no servers to scale, no databases to back up, no workers to spin up. If a million people use Quickpdf tomorrow, my hosting bill goes up by maybe $20.</p>
+  <p>That said, if it grows beyond what the free tier supports, I'll figure out a way to keep it free — donations, sponsorships, optional paid extras for power users. The core stays free regardless.</p>
+
+  <h2>What's next</h2>
+  <p>I want Quickpdf to be the obvious choice when you need to do something with a PDF. Not the most feature-packed (it isn't), not the prettiest (Adobe still wins there), but the most respectful of your time and privacy.</p>
+  <p>Currently shipping: Merge, Split, Compress, Organize, Watermark, Sign, Unlock, Protect, OCR, AI Summarizer, PDF↔Word, PDF↔JPG, Edit. Soon: Image to PDF, Compare PDFs, Rotate (standalone).</p>
+  <p>If you have ideas, complaints, or bug reports, I'd love to hear them. Quickpdf gets better when people use it and tell me what's missing.</p>
+
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand"><a href="index.html" class="logo"><span class="logo-mark">Q</span>Quickpdf</a><p>The free, fast, private way to work with PDFs.</p></div>
+    <div class="footer-tools-grid">
+      <div class="footer-col">
+        <h5>Tools</h5>
+        <a href="ai-summarize.html">AI Summarizer</a>
+        <a href="merge.html">Merge PDF</a>
+        <a href="split.html">Split PDF</a>
+        <a href="compress.html">Compress PDF</a>
+        <a href="organize.html">Organize PDF</a>
+        <a href="watermark.html">Watermark PDF</a>
+        <a href="sign.html">Sign PDF</a>
+      </div>
+      <div class="footer-col">
+        <h5>&nbsp;</h5>
+        <a href="unlock.html">Unlock PDF</a>
+        <a href="protect.html">Protect PDF</a>
+        <a href="ocr.html">OCR PDF</a>
+        <a href="pdf-to-word.html">PDF to Word</a>
+        <a href="word-to-pdf.html">Word to PDF</a>
+        <a href="pdf-to-jpg.html">PDF to JPG</a>
+        <a href="edit.html">Edit PDF</a>
+      </div>
+    </div>
+    <div class="footer-col"><h5>Company</h5><a href="blog.html">Blog</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="#">Contact</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Quickpdf. Made with care.</span><span>Your files. Your device. Always.</span></div>
+</footer>
+
+</body>
+</html>

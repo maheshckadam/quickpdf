@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Privacy Policy — Quickpdf</title>
+<meta name="description" content="How Quickpdf handles your data. Spoiler: we don't." />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ff5733'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='sans-serif' font-weight='700' font-size='18' fill='white' font-style='italic'%3EQ%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo"><span class="logo-mark">Q</span>Quickpdf</a>
+    <div class="nav-links">
+      <a href="index.html#tools">All tools</a>
+      <a href="blog.html">Blog</a>
+      <a href="index.html" class="btn btn-primary">← Back to home</a>
+    </div>
+  </div>
+</nav>
+
+<main class="static-page">
+  <div class="page-eyebrow">Privacy Policy</div>
+  <h1>Your files are <em>yours.</em> Always.</h1>
+  <p class="lead">Quickpdf processes your files entirely in your browser. We don't see them, store them, or transmit them anywhere.</p>
+  <p class="last-updated">Last updated: April 2026</p>
+
+  <h2>The short version</h2>
+  <ul>
+    <li><strong>We don't upload your files.</strong> Every PDF, image, or document you use Quickpdf with stays on your device. Processing happens locally in your web browser using JavaScript and WebAssembly.</li>
+    <li><strong>We don't track you.</strong> No analytics. No cookies. No fingerprinting. No advertising IDs.</li>
+    <li><strong>We don't have accounts.</strong> No signup, no login, no email collection. There's nothing to log into because there's nothing on a server.</li>
+    <li><strong>We don't share data with anyone.</strong> Because we don't collect any.</li>
+  </ul>
+
+  <blockquote>If you can use Quickpdf with your internet disconnected (after the initial page load), then by definition we can't be sending your data anywhere. Try it!</blockquote>
+
+  <h2>What technically happens when you use a tool</h2>
+  <p>When you visit a Quickpdf tool page, your browser downloads the page's HTML, CSS, and JavaScript files from our hosting provider (currently Vercel). These files contain all the code needed to process PDFs locally.</p>
+  <p>When you select a file (drag-and-drop or via the picker), your browser reads it from your device's storage into its own memory. JavaScript libraries like pdf-lib, pdf.js, and Tesseract.js then process it directly in your browser.</p>
+  <p>When the tool finishes, your browser triggers a download of the resulting file straight to your device. At no point does your file leave your computer.</p>
+
+  <h3>The one exception: AI Summarizer and OCR</h3>
+  <p>The AI Summarizer and OCR tools download additional resources to your browser the first time you use them — specifically, a machine-learning model (~70 MB for AI, ~12 MB for OCR). These models are downloaded from public CDNs (jsDelivr, unpkg) and cached in your browser. After the first download, they work entirely offline.</p>
+  <p>The model files are static — they only know how to do general summarization or text recognition. They have no knowledge of you, no way to phone home, and no connection to any service. Your file never leaves your browser, even when these models are running.</p>
+
+  <h2>Network requests we make</h2>
+  <p>When you load a Quickpdf page, your browser makes requests to:</p>
+  <ul>
+    <li><strong>Vercel</strong> — to load the page HTML, CSS, and JavaScript</li>
+    <li><strong>fonts.googleapis.com / fonts.gstatic.com</strong> — to load the Geist and Fraunces fonts</li>
+    <li><strong>cdnjs.cloudflare.com</strong> — to load PDF processing libraries (pdf-lib, pdf.js, jsPDF, etc.)</li>
+    <li><strong>cdn.jsdelivr.net / unpkg.com</strong> — to load additional libraries (Tesseract for OCR, transformers.js for AI)</li>
+  </ul>
+  <p>None of these third parties receive any of your file content. They only see that your browser requested a static resource — same as any website.</p>
+
+  <h2>Cookies</h2>
+  <p>Quickpdf doesn't set any cookies. Your browser may cache some files (like the AI model or fonts) for performance, but that's standard browser behavior — not tracking.</p>
+
+  <h2>Your rights (GDPR, CCPA, and just being a decent product)</h2>
+  <p>You have the right to know what we do with your data. We don't have any. So:</p>
+  <ul>
+    <li>Right to access — there's nothing to access</li>
+    <li>Right to deletion — there's nothing to delete</li>
+    <li>Right to portability — there's nothing to export</li>
+    <li>Right to opt out of sale — we don't sell anything</li>
+  </ul>
+  <p>If you're outside the EU, UK, or California, you still have these rights with us — they're just baked into the product.</p>
+
+  <h2>Children's privacy</h2>
+  <p>Quickpdf doesn't collect any information from anyone, including children. The tools are safe for any age. That said, kids should always check with a parent before using any online tool.</p>
+
+  <h2>Changes to this policy</h2>
+  <p>If we ever do collect data (we won't, but hypothetically), we'd update this policy and link to a clear changelog.</p>
+
+  <h2>Contact</h2>
+  <p>Questions? Reach out via the <a href="#">Contact page</a>. We'll always reply.</p>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand"><a href="index.html" class="logo"><span class="logo-mark">Q</span>Quickpdf</a><p>The free, fast, private way to work with PDFs.</p></div>
+    <div class="footer-tools-grid">
+      <div class="footer-col">
+        <h5>Tools</h5>
+        <a href="ai-summarize.html">AI Summarizer</a>
+        <a href="merge.html">Merge PDF</a>
+        <a href="split.html">Split PDF</a>
+        <a href="compress.html">Compress PDF</a>
+        <a href="organize.html">Organize PDF</a>
+        <a href="watermark.html">Watermark PDF</a>
+        <a href="sign.html">Sign PDF</a>
+      </div>
+      <div class="footer-col">
+        <h5>&nbsp;</h5>
+        <a href="unlock.html">Unlock PDF</a>
+        <a href="protect.html">Protect PDF</a>
+        <a href="ocr.html">OCR PDF</a>
+        <a href="pdf-to-word.html">PDF to Word</a>
+        <a href="word-to-pdf.html">Word to PDF</a>
+        <a href="pdf-to-jpg.html">PDF to JPG</a>
+        <a href="edit.html">Edit PDF</a>
+      </div>
+    </div>
+    <div class="footer-col"><h5>Company</h5><a href="blog.html">Blog</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="#">Contact</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Quickpdf. Made with care.</span><span>Your files. Your device. Always.</span></div>
+</footer>
+
+</body>
+</html>

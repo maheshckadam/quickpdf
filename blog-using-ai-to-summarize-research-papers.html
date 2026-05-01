@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Using AI to summarize a 30-page research paper in seconds — Quickpdf Blog</title>
+<meta name="description" content="Stuck with a dense academic PDF? AI summarization can pull out the key findings in seconds. Here's a real-world walkthrough." />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ff5733'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='sans-serif' font-weight='700' font-size='18' fill='white' font-style='italic'%3EQ%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo"><span class="logo-mark">Q</span>Quickpdf</a>
+    <div class="nav-links">
+      <a href="index.html#tools">All tools</a>
+      <a href="blog.html">Blog</a>
+      <a href="index.html" class="btn btn-primary">← Back to home</a>
+    </div>
+  </div>
+</nav>
+
+<main class="static-page blog-post">
+  <a href="blog.html" class="back-to-blog">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    Back to blog
+  </a>
+  <span class="post-tag blog-tag-ai">AI</span>
+  <h1>Using AI to summarize a 30-page research paper in seconds</h1>
+  <p class="post-meta">April 10, 2026 · 8 min read</p>
+
+  <p>I was trying to read a 32-page paper on transformer architecture last weekend. By page 8 I'd lost the thread. The math was thick, the prior-work section was long, and I just wanted the headline finding so I could decide whether the rest was worth my time.</p>
+  <p>Twenty seconds in our AI Summarizer later, I had a 4-sentence overview that was better than any abstract I'd ever read. Not because the AI was magic — but because abstracts are written for peer reviewers, while a summarizer is asked to write for a general reader.</p>
+
+  <h2>The setup</h2>
+  <p>I dropped the PDF into <a href="ai-summarize.html">Quickpdf's AI Summarizer</a>. The tool extracted the text using <code>pdf.js</code>, then ran it through DistilBART — a smaller, faster version of BART trained specifically for summarization. The whole thing happens in the browser using Transformers.js and WebAssembly. No server, no API call, no upload.</p>
+  <p>The first time you use it, your browser downloads the model (about 70 MB). After that, every subsequent summary is essentially free — no internet required.</p>
+
+  <h2>What I got</h2>
+  <p>The 32-page paper was about how attention mechanisms in transformers compare to memory mechanisms in older RNN architectures. I asked for a "medium" summary (~120 words). The result captured the central claim, the experimental setup, and the headline finding, while skipping the long literature review and the appendix on training stability.</p>
+  <blockquote>This isn't a coincidence — modern summarization models are specifically trained to identify the "lead" of a document and condense it. They're not literally reading; they're pattern-matching against tens of thousands of human-written summaries from the news and Wikipedia. The output reflects what humans tend to think is important.</blockquote>
+
+  <h2>What summarization is bad at</h2>
+  <p>It's important to be honest about the limits. AI summarizers — especially small browser-based ones — are not perfect:</p>
+  <ul>
+    <li><strong>Long documents get chunked.</strong> Models have a context limit (~1024 tokens for DistilBART). For a 30-page paper, our tool summarizes the document in chunks, then summarizes the summaries. This loses some nuance.</li>
+    <li><strong>Numbers can drift.</strong> Specific statistics or dates sometimes get garbled or rounded oddly. Always verify a number you'd cite.</li>
+    <li><strong>It can't follow arguments.</strong> A summary describes what's <em>in</em> a paper, not whether the argument is sound. You still need to read the paper to evaluate it.</li>
+    <li><strong>It can hallucinate, occasionally.</strong> Rare in summarization (less common than in chatbots) but possible — the model might add details that weren't in the source.</li>
+  </ul>
+
+  <h2>When it shines</h2>
+  <ul>
+    <li>Deciding whether a paper is worth a deep read</li>
+    <li>Quickly grasping the gist of a document outside your expertise</li>
+    <li>Summarizing meeting notes, contracts, manuals, or reports</li>
+    <li>Generating a starting draft you'll edit, not a finished product</li>
+    <li>Comparing several papers — get summaries of each, then compare</li>
+  </ul>
+
+  <h2>A trick for academic papers specifically</h2>
+  <p>Academic PDFs often have abstracts that are deliberately dense and jargon-heavy because they're written for specialists. The AI summarizer is trained mostly on news and general writing, so its output is usually <em>more readable</em> than the abstract. Use both: read the abstract for technical specificity, the summary for the gist.</p>
+
+  <h2>Privacy: this is the key part</h2>
+  <p>If you've ever pasted a research paper into ChatGPT and wondered "is this okay?" — the answer depends on whether the paper is yours, whether you have a license, and whether OpenAI's data retention policies are compatible with your institution's rules. It gets complicated fast.</p>
+  <p>Browser AI side-steps all of that. The model runs locally. The paper never gets uploaded. There's no third party seeing the content. For sensitive material — pre-publication papers, confidential reports, internal company docs — that's the difference between "I should probably ask IT first" and "I'll just summarize it real quick."</p>
+
+  <h2>Try it yourself</h2>
+  <p>Pick a paper you've been meaning to read. Drop it into the AI Summarizer. See if the summary helps you decide whether to invest the time in the full read. If it does, congratulations — you just saved an hour. If it doesn't, you learned something about the limits of small models, which is also valuable.</p>
+
+  <div class="post-cta">
+    <h4>Try it yourself</h4>
+    <p>You can use this tool right now in your browser — free and private.</p>
+    <a href="ai-summarize.html" class="btn-cta">Try AI Summarizer <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand"><a href="index.html" class="logo"><span class="logo-mark">Q</span>Quickpdf</a><p>The free, fast, private way to work with PDFs.</p></div>
+    <div class="footer-tools-grid">
+      <div class="footer-col">
+        <h5>Tools</h5>
+        <a href="ai-summarize.html">AI Summarizer</a>
+        <a href="merge.html">Merge PDF</a>
+        <a href="split.html">Split PDF</a>
+        <a href="compress.html">Compress PDF</a>
+        <a href="organize.html">Organize PDF</a>
+        <a href="watermark.html">Watermark PDF</a>
+        <a href="sign.html">Sign PDF</a>
+      </div>
+      <div class="footer-col">
+        <h5>&nbsp;</h5>
+        <a href="unlock.html">Unlock PDF</a>
+        <a href="protect.html">Protect PDF</a>
+        <a href="ocr.html">OCR PDF</a>
+        <a href="pdf-to-word.html">PDF to Word</a>
+        <a href="word-to-pdf.html">Word to PDF</a>
+        <a href="pdf-to-jpg.html">PDF to JPG</a>
+        <a href="edit.html">Edit PDF</a>
+      </div>
+    </div>
+    <div class="footer-col"><h5>Company</h5><a href="blog.html">Blog</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="#">Contact</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Quickpdf. Made with care.</span><span>Your files. Your device. Always.</span></div>
+</footer>
+
+</body>
+</html>

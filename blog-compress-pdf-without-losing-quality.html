@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>How to compress a PDF without making it look terrible — Quickpdf Blog</title>
+<meta name="description" content="Aggressive compression turns nice fonts into blurry blobs. Here's how to find the sweet spot between size and quality." />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ff5733'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='sans-serif' font-weight='700' font-size='18' fill='white' font-style='italic'%3EQ%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo"><span class="logo-mark">Q</span>Quickpdf</a>
+    <div class="nav-links">
+      <a href="index.html#tools">All tools</a>
+      <a href="blog.html">Blog</a>
+      <a href="index.html" class="btn btn-primary">← Back to home</a>
+    </div>
+  </div>
+</nav>
+
+<main class="static-page blog-post">
+  <a href="blog.html" class="back-to-blog">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    Back to blog
+  </a>
+  <span class="post-tag blog-tag-tips">Tips</span>
+  <h1>How to compress a PDF without making it look terrible</h1>
+  <p class="post-meta">April 15, 2026 · 5 min read</p>
+
+  <p>You email a PDF and your boss replies "Can you make this smaller?" You run it through a compressor, send it back, and now the text is fuzzy and the screenshots look like they were taken with a flip phone. There's a better way.</p>
+
+  <h2>What actually makes PDFs big</h2>
+  <p>Before compressing, it's worth understanding where the bytes are coming from. PDFs typically grow large for one of three reasons:</p>
+  <ol>
+    <li><strong>Embedded images</strong> — by far the most common cause. A high-resolution photo can be 5+ MB on its own.</li>
+    <li><strong>Embedded fonts</strong> — every font used in the PDF is bundled into the file. Fonts with many glyphs (Chinese, Japanese) can add megabytes.</li>
+    <li><strong>Scanned pages</strong> — these are technically just images, but they're a special case because every page is a full-page image.</li>
+  </ol>
+  <p>Text-only PDFs are usually small. PDFs with photos, scans, or many fonts are usually big.</p>
+
+  <h2>The two strategies for compression</h2>
+  <h3>1. Lossless compression (small wins, no quality loss)</h3>
+  <p>This recompresses already-compressed streams using better algorithms, removes duplicate data, and strips unused metadata. Savings are modest — maybe 10-30% — but the output looks identical to the original.</p>
+
+  <h3>2. Lossy compression (big wins, some quality loss)</h3>
+  <p>This re-encodes images at lower quality, downsamples to lower DPI, and converts color images to grayscale where possible. Savings can be dramatic — 50-90% smaller. The cost is visible quality loss in images.</p>
+
+  <p>Most "compress PDF" tools (including ours) are some flavor of lossy. The trick is choosing the right level for your use case.</p>
+
+  <h2>Choosing the right compression level</h2>
+
+  <h3>For email attachments</h3>
+  <p>Medium quality is usually fine. Modern email clients display images at relatively low resolution anyway. The recipient is going to skim, not zoom in.</p>
+
+  <h3>For printed documents</h3>
+  <p>Use high quality. Even if the PDF will only be printed once, 300 DPI is standard for print and you want the source to support it.</p>
+
+  <h3>For archival or legal use</h3>
+  <p>Don't compress at all, or use a true lossless tool. Future-you might want to zoom into that document and see what it actually said. PDF/A archival format exists for exactly this reason.</p>
+
+  <h3>For web display</h3>
+  <p>Aggressive compression is fine. Browsers display at screen resolution; nobody zooms past 200%. Get the file as small as possible so it loads fast.</p>
+
+  <h2>The "looks terrible" trap</h2>
+  <p>If you've ever compressed a PDF and ended up with text that looks slightly blurry, here's what happened: the text was originally rasterized into the document as part of an image (common with scans). When the image got recompressed at lower quality, the text — being part of the image — got blurred too.</p>
+  <p>The fix: run the PDF through OCR first to convert the text-as-image back into actual text characters. Then compression only affects images, and text stays sharp.</p>
+
+  <h2>What we do under the hood</h2>
+  <p>Quickpdf's <a href="compress.html">Compress PDF</a> tool re-renders each page to a JPEG at adjustable quality, then packs the JPEGs back into a PDF. This works very well for image-heavy PDFs and scans, less well for pure-text PDFs (where there's not much to compress beyond what's already optimal).</p>
+  <p>You can choose three quality levels:</p>
+  <ul>
+    <li><strong>Low</strong> (50% JPEG quality, 1× scale) — smallest output, visible quality loss</li>
+    <li><strong>Medium</strong> (70% quality, 1.5× scale) — good balance for most uses</li>
+    <li><strong>High</strong> (85% quality, 2× scale) — gentle compression, minimal quality loss</li>
+  </ul>
+  <p>Run all three on a sample PDF and compare. You'll quickly see which level fits your needs.</p>
+
+  <div class="post-cta">
+    <h4>Try it yourself</h4>
+    <p>You can use this tool right now in your browser — free and private.</p>
+    <a href="compress.html" class="btn-cta">Try Compress PDF <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand"><a href="index.html" class="logo"><span class="logo-mark">Q</span>Quickpdf</a><p>The free, fast, private way to work with PDFs.</p></div>
+    <div class="footer-tools-grid">
+      <div class="footer-col">
+        <h5>Tools</h5>
+        <a href="ai-summarize.html">AI Summarizer</a>
+        <a href="merge.html">Merge PDF</a>
+        <a href="split.html">Split PDF</a>
+        <a href="compress.html">Compress PDF</a>
+        <a href="organize.html">Organize PDF</a>
+        <a href="watermark.html">Watermark PDF</a>
+        <a href="sign.html">Sign PDF</a>
+      </div>
+      <div class="footer-col">
+        <h5>&nbsp;</h5>
+        <a href="unlock.html">Unlock PDF</a>
+        <a href="protect.html">Protect PDF</a>
+        <a href="ocr.html">OCR PDF</a>
+        <a href="pdf-to-word.html">PDF to Word</a>
+        <a href="word-to-pdf.html">Word to PDF</a>
+        <a href="pdf-to-jpg.html">PDF to JPG</a>
+        <a href="edit.html">Edit PDF</a>
+      </div>
+    </div>
+    <div class="footer-col"><h5>Company</h5><a href="blog.html">Blog</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="#">Contact</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Quickpdf. Made with care.</span><span>Your files. Your device. Always.</span></div>
+</footer>
+
+</body>
+</html>

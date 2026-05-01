@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>How to merge PDFs without uploading them anywhere — Quickpdf Blog</title>
+<meta name="description" content="Most "free" PDF mergers send your files to a server. Here's how to combine PDFs entirely in your browser — with screenshots." />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ff5733'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='sans-serif' font-weight='700' font-size='18' fill='white' font-style='italic'%3EQ%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo"><span class="logo-mark">Q</span>Quickpdf</a>
+    <div class="nav-links">
+      <a href="index.html#tools">All tools</a>
+      <a href="blog.html">Blog</a>
+      <a href="index.html" class="btn btn-primary">← Back to home</a>
+    </div>
+  </div>
+</nav>
+
+<main class="static-page blog-post">
+  <a href="blog.html" class="back-to-blog">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    Back to blog
+  </a>
+  <span class="post-tag blog-tag-howto">How-to</span>
+  <h1>How to merge PDFs without uploading them anywhere</h1>
+  <p class="post-meta">April 18, 2026 · 4 min read</p>
+
+  <p>The first 10 results when you search "merge PDF online" all do the same thing: ask you to upload your files to their servers, process them remotely, and email or download the result. For most documents that's fine. For sensitive ones — contracts, medical records, financial statements — it's a problem.</p>
+  <p>Here's how to merge PDFs entirely in your browser, with the file never leaving your device.</p>
+
+  <h2>The 30-second version</h2>
+  <ol>
+    <li>Open <a href="merge.html">Quickpdf's Merge tool</a></li>
+    <li>Drag in your PDFs (or click "Select PDF files")</li>
+    <li>Drag the file rows up or down to set the order</li>
+    <li>Click "Merge & download"</li>
+    <li>Done — the merged PDF appears in your Downloads folder</li>
+  </ol>
+  <p>That's it. No upload, no signup, no waiting on a server.</p>
+
+  <h2>The longer explanation</h2>
+  <p>Modern browsers can do a lot more than load web pages. They can run libraries like <code>pdf-lib</code> — a JavaScript implementation of the PDF specification that reads, writes, and modifies PDFs entirely in JavaScript.</p>
+  <p>When you drag a PDF onto Quickpdf's merge page, your browser reads the file from your local disk into JavaScript memory. <code>pdf-lib</code> parses each PDF's structure, extracts the pages, and assembles them into a brand new PDF document. The result is then handed back to your browser as a binary blob, which triggers a download. Your file never touches a server because there's no server in the loop at all.</p>
+
+  <h2>How to verify it's actually local</h2>
+  <p>Don't take my word for it — test it yourself:</p>
+  <ol>
+    <li>Open the merge page</li>
+    <li>Disconnect your internet (turn off Wi-Fi, unplug Ethernet)</li>
+    <li>Drop in two PDFs and click Merge</li>
+    <li>The merged file downloads — even with no internet</li>
+  </ol>
+  <p>If a tool can work offline, it can't be sending your data anywhere. This works for our merge, split, compress, watermark, sign, organize, and edit tools. (OCR and AI Summarizer need to download their models the first time, but after that they work offline too.)</p>
+
+  <h2>Tips for great merges</h2>
+  <h3>Order matters, and it's easy to mess up</h3>
+  <p>Drag the files into the order you want them combined. If you have 12 scanned receipts and they came in random order, sort them <em>before</em> hitting merge. There's no undo.</p>
+
+  <h3>Page sizes can be different</h3>
+  <p>If you merge a Letter-size and an A4-size PDF, the resulting file has pages of mixed sizes. Most readers handle this fine, but some printers complain. If you need uniform sizing, convert each to the same size first.</p>
+
+  <h3>File size adds up</h3>
+  <p>Merging 20 image-heavy PDFs into one can produce a 200 MB monster. If your final file is too big to email, run it through our <a href="compress.html">Compress PDF</a> tool afterward.</p>
+
+  <h2>Bottom line</h2>
+  <p>You don't need to upload your files to a server to merge them. Modern browsers are powerful enough to do this work locally — and free tools that take advantage of that are a win for everyone except the companies running upload-based services.</p>
+
+  <div class="post-cta">
+    <h4>Try it yourself</h4>
+    <p>You can use this tool right now in your browser — free and private.</p>
+    <a href="merge.html" class="btn-cta">Try Merge PDF <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand"><a href="index.html" class="logo"><span class="logo-mark">Q</span>Quickpdf</a><p>The free, fast, private way to work with PDFs.</p></div>
+    <div class="footer-tools-grid">
+      <div class="footer-col">
+        <h5>Tools</h5>
+        <a href="ai-summarize.html">AI Summarizer</a>
+        <a href="merge.html">Merge PDF</a>
+        <a href="split.html">Split PDF</a>
+        <a href="compress.html">Compress PDF</a>
+        <a href="organize.html">Organize PDF</a>
+        <a href="watermark.html">Watermark PDF</a>
+        <a href="sign.html">Sign PDF</a>
+      </div>
+      <div class="footer-col">
+        <h5>&nbsp;</h5>
+        <a href="unlock.html">Unlock PDF</a>
+        <a href="protect.html">Protect PDF</a>
+        <a href="ocr.html">OCR PDF</a>
+        <a href="pdf-to-word.html">PDF to Word</a>
+        <a href="word-to-pdf.html">Word to PDF</a>
+        <a href="pdf-to-jpg.html">PDF to JPG</a>
+        <a href="edit.html">Edit PDF</a>
+      </div>
+    </div>
+    <div class="footer-col"><h5>Company</h5><a href="blog.html">Blog</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="#">Contact</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Quickpdf. Made with care.</span><span>Your files. Your device. Always.</span></div>
+</footer>
+
+</body>
+</html>

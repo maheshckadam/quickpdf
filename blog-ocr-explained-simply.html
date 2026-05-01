@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OCR explained simply: how computers learn to read scanned PDFs — Quickpdf Blog</title>
+<meta name="description" content="Optical Character Recognition is one of those technologies you probably use every week. Here's how it actually works under the hood." />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ff5733'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='sans-serif' font-weight='700' font-size='18' fill='white' font-style='italic'%3EQ%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo"><span class="logo-mark">Q</span>Quickpdf</a>
+    <div class="nav-links">
+      <a href="index.html#tools">All tools</a>
+      <a href="blog.html">Blog</a>
+      <a href="index.html" class="btn btn-primary">← Back to home</a>
+    </div>
+  </div>
+</nav>
+
+<main class="static-page blog-post">
+  <a href="blog.html" class="back-to-blog">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    Back to blog
+  </a>
+  <span class="post-tag blog-tag-ai">AI</span>
+  <h1>OCR explained simply: how computers learn to read scanned PDFs</h1>
+  <p class="post-meta">April 5, 2026 · 6 min read</p>
+
+  <p>You take a photo of a receipt. Your bank app instantly knows it's $34.20 from Trader Joe's. You scan a textbook page. Your e-reader makes the text searchable and selectable. You drop a scanned PDF into our OCR tool. It hands you back a Word document with the text extracted.</p>
+  <p>That's all OCR — Optical Character Recognition — and it's been quietly powering things since the 1970s. Here's how it works.</p>
+
+  <h2>The problem in plain terms</h2>
+  <p>To a computer, a scanned page is just an image — a grid of pixels, each with a color value. The fact that some of those pixels happen to form the letter "A" is meaningless to the machine. It sees no text, just darker and lighter blobs. OCR is the process of turning that blob-pattern into actual character data.</p>
+
+  <h2>The classical pipeline (pre-2010)</h2>
+  <p>For decades, OCR followed a multi-stage pipeline:</p>
+  <ol>
+    <li><strong>Preprocessing</strong> — convert to black-and-white, deskew the page (correct rotation), remove noise specks</li>
+    <li><strong>Layout analysis</strong> — find columns, paragraphs, tables, and reading order</li>
+    <li><strong>Character segmentation</strong> — chop each line into individual character boxes</li>
+    <li><strong>Feature extraction</strong> — describe each character box with numerical features (number of strokes, presence of holes, curvature)</li>
+    <li><strong>Classification</strong> — match the features against a library of known character templates</li>
+    <li><strong>Post-processing</strong> — use a dictionary to correct obvious errors ("teh" → "the")</li>
+  </ol>
+  <p>This worked, but it was brittle. Slightly tilted scans, unusual fonts, or low resolution would tank accuracy fast. Tesseract — the most popular open-source OCR engine, originally developed by HP and now maintained by Google — used this approach for years.</p>
+
+  <h2>The neural network era (2015 onward)</h2>
+  <p>Around 2015, OCR went through the same transformation as image recognition and translation: deep learning replaced hand-coded pipelines. Modern engines (Tesseract 4+, Google Vision, AWS Textract) use one of two neural approaches:</p>
+
+  <h3>LSTM-based recognition</h3>
+  <p>The image of a line of text is fed through a Long Short-Term Memory neural network, which produces a sequence of characters one at a time, considering both the current pixel pattern and what it has already recognized. This is what Tesseract 4 and 5 use under the hood.</p>
+
+  <h3>End-to-end transformers</h3>
+  <p>Newer systems skip the line-segmentation step entirely. The whole page goes into a vision transformer, and out comes structured text with layout preserved. These are more accurate but require more computing power.</p>
+
+  <h2>Why OCR still gets things wrong</h2>
+  <p>Even modern OCR has predictable failure modes:</p>
+  <ul>
+    <li><strong>Low resolution scans</strong> — fewer pixels means less detail to work with. Sub-200 DPI is risky.</li>
+    <li><strong>Mixed scripts</strong> — switching languages mid-line confuses most engines unless they're explicitly multilingual.</li>
+    <li><strong>Handwriting</strong> — much harder than printed text. Some engines support it, most don't.</li>
+    <li><strong>Tables</strong> — preserving rows and columns is a separate problem from reading the text. Many OCR engines flatten tables into messy lists.</li>
+    <li><strong>Mathematical formulas</strong> — OCR engines trained on prose generally cannot read math. Specialized tools (MathPix, etc.) handle this.</li>
+    <li><strong>Stylized fonts</strong> — script fonts, calligraphy, decorative type all reduce accuracy.</li>
+  </ul>
+
+  <h2>OCR in your browser</h2>
+  <p>For decades, OCR meant downloading a desktop tool or paying for a cloud service. That's no longer required. Tesseract has been compiled to WebAssembly (the project is called <code>Tesseract.js</code>), so a full OCR engine — including language models for 100+ languages — can run entirely in your web browser.</p>
+  <p>Quickpdf's <a href="ocr.html">OCR tool</a> uses exactly this approach. The first time you use it, your browser downloads the language model (about 12 MB for English; larger for some languages). Subsequent runs are offline. Your scanned PDF never gets uploaded anywhere — the recognition happens on your device.</p>
+  <p>Quality is comparable to what cloud APIs gave you 5 years ago. That's not as good as today's best cloud OCR (which has had another 5 years of improvement), but for most personal and small-business needs, it's more than enough.</p>
+
+  <h2>Practical tips for better OCR results</h2>
+  <ul>
+    <li><strong>Scan at 300 DPI or higher.</strong> This is the single biggest factor.</li>
+    <li><strong>Use good lighting and contrast</strong> — if you're photographing instead of scanning, avoid shadows and glare.</li>
+    <li><strong>Straighten before recognizing</strong> — most engines auto-deskew, but a clean starting point helps.</li>
+    <li><strong>Choose the right language</strong> — running an English model on a Spanish document will fail badly.</li>
+    <li><strong>Verify numbers</strong> — OCR errors disproportionately affect digits (3 vs 8, 1 vs 7). Double-check anything financial.</li>
+  </ul>
+
+  <div class="post-cta">
+    <h4>Try it yourself</h4>
+    <p>You can use this tool right now in your browser — free and private.</p>
+    <a href="ocr.html" class="btn-cta">Try OCR PDF <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand"><a href="index.html" class="logo"><span class="logo-mark">Q</span>Quickpdf</a><p>The free, fast, private way to work with PDFs.</p></div>
+    <div class="footer-tools-grid">
+      <div class="footer-col">
+        <h5>Tools</h5>
+        <a href="ai-summarize.html">AI Summarizer</a>
+        <a href="merge.html">Merge PDF</a>
+        <a href="split.html">Split PDF</a>
+        <a href="compress.html">Compress PDF</a>
+        <a href="organize.html">Organize PDF</a>
+        <a href="watermark.html">Watermark PDF</a>
+        <a href="sign.html">Sign PDF</a>
+      </div>
+      <div class="footer-col">
+        <h5>&nbsp;</h5>
+        <a href="unlock.html">Unlock PDF</a>
+        <a href="protect.html">Protect PDF</a>
+        <a href="ocr.html">OCR PDF</a>
+        <a href="pdf-to-word.html">PDF to Word</a>
+        <a href="word-to-pdf.html">Word to PDF</a>
+        <a href="pdf-to-jpg.html">PDF to JPG</a>
+        <a href="edit.html">Edit PDF</a>
+      </div>
+    </div>
+    <div class="footer-col"><h5>Company</h5><a href="blog.html">Blog</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="#">Contact</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Quickpdf. Made with care.</span><span>Your files. Your device. Always.</span></div>
+</footer>
+
+</body>
+</html>

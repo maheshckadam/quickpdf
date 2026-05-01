@@ -17,7 +17,7 @@
 
 <style>
 /* ============ HOMEPAGE-SPECIFIC ============ */
-.hero { max-width: 1280px; margin: 0 auto; padding: 80px 32px 60px; position: relative; }
+.hero { max-width: 1280px; margin: 0 auto; padding: 8px 32px 40px; position: relative; }
 .hero-pill {
   display: inline-flex;
   align-items: center;
@@ -29,7 +29,7 @@
   font-size: 13px;
   font-weight: 500;
   color: var(--ink-soft);
-  margin-bottom: 28px;
+  margin-bottom: 20px;
   box-shadow: var(--shadow-sm);
 }
 .hero-pill-dot {
@@ -132,7 +132,7 @@
 .stat-label { font-size: 13px; color: var(--ink-muted); margin-top: 2px; }
 .hero-shape { position: absolute; pointer-events: none; z-index: -1; }
 .hero-shape-1 {
-  top: 100px; right: 5%;
+  top: 50px; right: 5%;
   width: 200px; height: 240px;
   background: var(--accent-soft);
   border-radius: 12px;
@@ -140,7 +140,7 @@
   opacity: .9;
 }
 .hero-shape-2 {
-  top: 140px; right: 14%;
+  top: 90px; right: 14%;
   width: 200px; height: 240px;
   background: var(--bg-card);
   border: 1px solid var(--line);
@@ -149,7 +149,7 @@
   box-shadow: var(--shadow-md);
 }
 .hero-shape-3 {
-  top: 180px; right: 22%;
+  top: 130px; right: 22%;
   width: 200px; height: 240px;
   background: var(--bg-card);
   border: 1px solid var(--line);
@@ -266,6 +266,12 @@
 }
 .badge-live { background: var(--green-soft); color: var(--green); }
 .badge-soon { background: var(--yellow-soft); color: var(--yellow); }
+.badge-new { background: var(--purple-soft); color: var(--purple); }
+.badge-new {
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  color: white;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, .25);
+}
 
 .features {
   display: grid;
@@ -372,7 +378,7 @@
   </div>
 
   <div class="hero-stats fade-up delay-4">
-    <div><div class="stat-num">13+</div><div class="stat-label">PDF tools</div></div>
+    <div><div class="stat-num">14+</div><div class="stat-label">PDF tools</div></div>
     <div><div class="stat-num">100%</div><div class="stat-label">Private &amp; offline</div></div>
     <div><div class="stat-num">$0</div><div class="stat-label">Forever free</div></div>
     <div><div class="stat-num">∞</div><div class="stat-label">No file limits</div></div>
@@ -389,6 +395,16 @@
   </div>
 
   <div class="tools-grid">
+    <a href="ai-summarize.html" class="tool-card">
+      <span class="badge badge-new">✨ New</span>
+      <div class="tool-icon tc-purple">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+      </div>
+      <h3>AI Summarizer</h3>
+      <p>Get an instant smart summary of any PDF in seconds. Powered by AI.</p>
+      <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M7 7h10v10"/></svg>
+    </a>
+
     <a href="merge.html" class="tool-card">
       <span class="badge badge-live">Live</span>
       <div class="tool-icon tc-orange">
@@ -509,6 +525,16 @@
       <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M7 7h10v10"/></svg>
     </a>
 
+    <a href="ai-summarize.html" class="tool-card">
+      <span class="badge badge-new">New</span>
+      <div class="tool-icon tc-purple">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.5 6.5L21 11l-6.5 2.5L12 20l-2.5-6.5L3 11l6.5-2.5z"/><path d="M5 3v4M3 5h4M19 17v4M17 19h4"/></svg>
+      </div>
+      <h3>AI Summarizer</h3>
+      <p>Get a quick summary of any PDF using smart sentence ranking.</p>
+      <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M7 7h10v10"/></svg>
+    </a>
+
     <a href="protect.html" class="tool-card">
       <span class="badge badge-live">Live</span>
       <div class="tool-icon tc-orange">
@@ -577,6 +603,7 @@
     <div class="footer-tools-grid">
       <div class="footer-col">
         <h5>Tools</h5>
+        <a href="ai-summarize.html">AI Summarizer ✨</a>
         <a href="merge.html">Merge PDF</a>
         <a href="split.html">Split PDF</a>
         <a href="compress.html">Compress PDF</a>
@@ -597,11 +624,10 @@
     </div>
     <div class="footer-col">
       <h5>Company</h5>
-      <a href="#">About</a>
-      <a href="#">Blog</a>
-      <a href="#">Privacy</a>
-      <a href="#">Terms</a>
-      <a href="#">Contact</a>
+      <a href="blog.html">Blog</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+      <a href="mailto:hello@quickpdf.app">Contact</a>
     </div>
   </div>
   <div class="footer-bottom">
