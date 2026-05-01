@@ -117,13 +117,13 @@ nav {
 .btn-primary { background: var(--ink); color: var(--bg); }
 .btn-primary:hover { background: #2a2a26; transform: translateY(-1px); box-shadow: var(--shadow-md); }
 .btn-back-home {
-  background: var(--accent);
-  color: white;
+  background: var(--accent) !important;
+  color: white !important;
   box-shadow: 0 4px 14px rgba(255,87,51,.25);
 }
 .btn-back-home:hover {
-  background: var(--accent-deep);
-  color: white;
+  background: var(--accent-deep) !important;
+  color: white !important;
   transform: translateY(-1px);
   box-shadow: 0 8px 20px rgba(255,87,51,.35);
 }
