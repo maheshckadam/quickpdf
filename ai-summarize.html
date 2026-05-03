@@ -213,6 +213,9 @@ const FILELIST_TEMPLATE = `
         <label class="radio-pill"><input type="radio" name="sumLen" value="long"><span>Long (~200 words)</span></label>
       </div>
     </div>
+    <p style="font-size: 12px; color: var(--ink-muted); margin-top: 8px; line-height: 1.5;">
+      💡 Length is approximate. For very short documents, the AI may produce less than the target — there's only so much it can say about a small input.
+    </p>
   </div>
   <div class="ai-disclaimer">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
@@ -336,10 +339,12 @@ async function doAction() {
 
   try {
     const lenSetting = document.querySelector('input[name="sumLen"]:checked').value;
+    // BART measures in TOKENS, not words. ~1.3 tokens/word in English, plus ~30% headroom
+    // so the model can comfortably hit the target. So target_words * 1.6 ≈ max_tokens.
     const lengthMap = {
-      short:  { min_length: 30,  max_length: 80 },
-      medium: { min_length: 80,  max_length: 160 },
-      long:   { min_length: 150, max_length: 250 }
+      short:  { minTokens: 50,  maxTokens: 120 },
+      medium: { minTokens: 130, maxTokens: 220 },
+      long:   { minTokens: 220, maxTokens: 350 }
     };
     const lenOpts = lengthMap[lenSetting];
 
@@ -348,18 +353,46 @@ async function doAction() {
 
     setProgress('Preparing text…', 0);
     const text = extractedText.replace(/\s+/g, ' ').trim();
+    const inputWords = text.split(/\s+/).filter(Boolean).length;
+
+    // Heads-up: if the document is short and the user picked "long", the model can't
+    // make a longer summary than the input itself. Warn but still try.
+    const targetWords = { short: 50, medium: 120, long: 200 }[lenSetting];
+    if (inputWords < targetWords * 1.5) {
+      const recommended = inputWords < 200 ? 'Short' : (inputWords < 500 ? 'Medium' : 'Long');
+      showToast(
+        'Document is short',
+        `Only ${inputWords} words in this PDF. "${recommended}" length usually works best for this size.`,
+        'info',
+        4500
+      );
+    }
+
     const CHUNK_SIZE = 3000;
     const chunks = [];
     for (let i = 0; i < text.length; i += CHUNK_SIZE) {
       chunks.push(text.slice(i, i + CHUNK_SIZE));
     }
 
+    // Per-chunk targets:
+    //  - Single chunk: produce the user's full target right away
+    //  - Multi-chunk: each chunk produces a smaller summary, then combined+resummarized
+    let perChunkMin, perChunkMax;
+    if (chunks.length === 1) {
+      perChunkMin = lenOpts.minTokens;
+      perChunkMax = lenOpts.maxTokens;
+    } else {
+      // Spread the budget across chunks but keep each chunk substantial
+      perChunkMax = Math.min(180, Math.max(80, Math.ceil(lenOpts.maxTokens / Math.min(chunks.length, 3))));
+      perChunkMin = Math.max(40, Math.floor(perChunkMax * 0.6));
+    }
+
     const chunkSummaries = [];
     for (let i = 0; i < chunks.length; i++) {
       setProgress(`Summarizing chunk ${i + 1} of ${chunks.length}…`, Math.round((i / chunks.length) * 90));
       const result = await summarizer(chunks[i], {
-        min_length: Math.min(40, lenOpts.min_length),
-        max_length: Math.min(120, lenOpts.max_length),
+        min_length: perChunkMin,
+        max_length: perChunkMax,
         do_sample: false
       });
       chunkSummaries.push(result[0].summary_text.trim());
@@ -367,14 +400,16 @@ async function doAction() {
 
     let finalSummary;
     if (chunkSummaries.length === 1) {
+      // Single chunk — already produced at the target length
       finalSummary = chunkSummaries[0];
     } else {
+      // Multiple chunks — combine and resummarize to user's chosen length
       setProgress('Combining summaries…', 95);
       const combined = chunkSummaries.join(' ');
       const truncated = combined.slice(0, CHUNK_SIZE);
       const result = await summarizer(truncated, {
-        min_length: lenOpts.min_length,
-        max_length: lenOpts.max_length,
+        min_length: lenOpts.minTokens,
+        max_length: lenOpts.maxTokens,
         do_sample: false
       });
       finalSummary = result[0].summary_text.trim();
