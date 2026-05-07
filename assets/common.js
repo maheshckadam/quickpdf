@@ -178,6 +178,7 @@ const SUCCESS_MESSAGES = {
   split:       ['Sliced and diced! 🔪', 'Pages set free! 🦋', 'Split successful!', 'Easy peasy! ✨'],
   compress:    ['Squeezed it tight! 🤏', 'Lighter and ready! 🪶', 'Compression complete!', 'Slim and trim! 💪'],
   'pdf-to-jpg': ['Snapshots ready! 📸', 'Images delivered! 🖼️', 'Pixel perfect! ✨', 'JPGs are yours! 🎨'],
+  'pdf-to-png': ['Crisp and clear! 🎨', 'PNGs delivered! 🖼️', 'Sharp as ever! ✨', 'Pixel perfect transparency! 🪟'],
   'word-to-pdf': ['Polished and PDF\'d! ✨', 'Document delivered!', 'Ready to share! 📄', 'Looks great!'],
   'pdf-to-word': ['Text extracted! 📝', 'Word doc ready!', 'All yours to edit!', 'Done and dusted! ✅'],
   edit:        ['Edited and ready! ✏️', 'Looking sharp! ✨', 'Polished to perfection!', 'Nailed it! 🎯'],
